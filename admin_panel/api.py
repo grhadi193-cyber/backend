@@ -1,6 +1,6 @@
 """
-Admin Panel API  —  Phase 17 + 18 + 19 + 4A
-============================================
+Admin Panel API  —  Phase 17 + 18 + 19 + Fixes
+================================================
 تمام endpoint‌ها نیاز به is_staff=True دارند (AdminBearer).
 
 Routers:
@@ -21,7 +21,8 @@ Routers:
   GET  /api/admin/settings/
   PUT  /api/admin/settings/
 
-Phase 4A: slug uniqueness از طریق service layer تضمین می‌شود.
+Phase 19: total_pages به AdminUserListOut و AdminOrderListOut اضافه شد.
+Fixes:  بررسی تکراری بودن slug در ایجاد و ویرایش محصول.
 """
 
 from __future__ import annotations
@@ -188,6 +189,17 @@ def _revenue_for(qs):
     """مجموع total_price برای سفارش‌های paid از یک QuerySet."""
     agg = qs.filter(status="paid").aggregate(total=Sum("total_price"))
     return agg["total"] or Decimal("0")
+
+
+def _check_duplicate_slug(slug: str, exclude_id: Optional[int] = None):
+    """
+    بررسی تکراری بودن slug.
+    اگر exclude_id داده شود، آن محصول از چک مستثنی می‌شود (برای ویرایش).
+    """
+    qs = Product.objects.filter(slug=slug)
+    if exclude_id:
+        qs = qs.exclude(pk=exclude_id)
+    return qs.exists()
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -377,9 +389,9 @@ def admin_get_order(request, order_id: int):
     summary="تغییر وضعیت سفارش (ادمین)",
 )
 def admin_update_order_status(request, order_id: int, payload: AdminOrderStatusIn):
-    from store.services import update_order_status as svc_update
+    from store.services import update_order_status
     try:
-        svc_update(
+        order = update_order_status(
             order_id=order_id,
             new_status=payload.status,
             admin_user=request.auth,
@@ -387,9 +399,12 @@ def admin_update_order_status(request, order_id: int, payload: AdminOrderStatusI
             postal_tracking=payload.postal_tracking,
             note=payload.note,
         )
-    except AppException as e:
-        return JsonResponse({"error": True, "code": "invalid", "message": e.detail}, status=e.status_code)
-    return {"detail": "وضعیت سفارش با موفقیت تغییر کرد."}
+    except AppException as exc:
+        return JsonResponse(
+            {"error": True, "code": "validation_error", "message": exc.message},
+            status=exc.status_code or 400,
+        )
+    return UserOrderOut.model_validate(order)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -402,20 +417,15 @@ def admin_update_order_status(request, order_id: int, payload: AdminOrderStatusI
     response=AdminProductListOut,
     summary="لیست محصولات (ادمین)",
 )
-def admin_list_products(
-    request,
-    page: int = 1,
-    page_size: int = 20,
-    search: str = "",
-    is_active: Optional[bool] = None,
-):
-    qs = Product.objects.select_related("category").order_by("-created_at")
+def admin_list_products(request, page: int = 1, page_size: int = 20, search: str = ""):
+    qs = Product.objects.all().select_related("category").order_by("-created_at")
     if search:
-        qs = qs.filter(Q(name__icontains=search) | Q(sku__icontains=search))
-    if is_active is not None:
-        qs = qs.filter(is_active=is_active)
+        qs = qs.filter(
+            Q(name__icontains=search) | Q(slug__icontains=search)
+        )
 
     total, total_pages, page_qs = _paginate(qs, page, page_size)
+
     results = [AdminProductOut.model_validate(p) for p in page_qs]
     return AdminProductListOut(
         count=total,
@@ -433,14 +443,54 @@ def admin_list_products(
     summary="ایجاد محصول جدید (ادمین)",
 )
 def admin_create_product(request, payload: AdminProductIn):
-    from store.services import admin_create_product as svc_create
-    try:
-        product = svc_create(payload)
-    except AppException as e:
+    from store.models import Category
+
+    # ── بررسی تکراری بودن slug ──
+    if _check_duplicate_slug(payload.slug):
         return JsonResponse(
-            {"error": True, "code": "invalid", "message": e.detail},
-            status=e.status_code,
+            {
+                "error": True,
+                "code": "duplicate_slug",
+                "message": f"اسلاگ '{payload.slug}' قبلاً استفاده شده است. لطفاً اسلاگ دیگری انتخاب کنید.",
+            },
+            status=400,
         )
+
+    # ── بررسی تکراری بودن sku (اگر داده شده) ──
+    if payload.sku and Product.objects.filter(sku=payload.sku).exists():
+        return JsonResponse(
+            {
+                "error": True,
+                "code": "duplicate_sku",
+                "message": f"SKU '{payload.sku}' قبلاً استفاده شده است.",
+            },
+            status=400,
+        )
+
+    category = None
+    if payload.category_id:
+        try:
+            category = Category.objects.get(pk=payload.category_id)
+        except Category.DoesNotExist:
+            return JsonResponse(
+                {"error": True, "code": "not_found", "message": "دسته‌بندی یافت نشد."},
+                status=404,
+            )
+
+    product = Product.objects.create(
+        name=payload.name,
+        slug=payload.slug,
+        description=payload.description,
+        price=payload.price,
+        discount_price=payload.discount_price,
+        stock=payload.stock,
+        weight=payload.weight,
+        category=category,
+        sku=payload.sku or None,
+        meta_title=payload.meta_title,
+        meta_description=payload.meta_description,
+        is_active=payload.is_active,
+    )
     return AdminProductOut.model_validate(product)
 
 
@@ -468,14 +518,61 @@ def admin_get_product(request, product_id: int):
     summary="ویرایش محصول (ادمین)",
 )
 def admin_update_product(request, product_id: int, payload: AdminProductIn):
-    from store.services import admin_update_product as svc_update
+    from store.models import Category
     try:
-        product = svc_update(product_id, payload)
-    except AppException as e:
+        product = Product.objects.get(pk=product_id)
+    except Product.DoesNotExist:
         return JsonResponse(
-            {"error": True, "code": "invalid", "message": e.detail},
-            status=e.status_code,
+            {"error": True, "code": "not_found", "message": "محصول یافت نشد."},
+            status=404,
         )
+
+    # ── بررسی تکراری بودن slug (محصول فعلی مستثنی) ──
+    if _check_duplicate_slug(payload.slug, exclude_id=product_id):
+        return JsonResponse(
+            {
+                "error": True,
+                "code": "duplicate_slug",
+                "message": f"اسلاگ '{payload.slug}' قبلاً استفاده شده است. لطفاً اسلاگ دیگری انتخاب کنید.",
+            },
+            status=400,
+        )
+
+    # ── بررسی تکراری بودن sku (محصول فعلی مستثنی) ──
+    if payload.sku and Product.objects.filter(sku=payload.sku).exclude(pk=product_id).exists():
+        return JsonResponse(
+            {
+                "error": True,
+                "code": "duplicate_sku",
+                "message": f"SKU '{payload.sku}' قبلاً استفاده شده است.",
+            },
+            status=400,
+        )
+
+    category = None
+    if payload.category_id:
+        try:
+            category = Category.objects.get(pk=payload.category_id)
+        except Category.DoesNotExist:
+            return JsonResponse(
+                {"error": True, "code": "not_found", "message": "دسته‌بندی یافت نشد."},
+                status=404,
+            )
+
+    product.name = payload.name
+    product.slug = payload.slug
+    product.description = payload.description
+    product.price = payload.price
+    product.discount_price = payload.discount_price
+    product.stock = payload.stock
+    product.weight = payload.weight
+    product.category = category
+    product.sku = payload.sku or None
+    product.meta_title = payload.meta_title
+    product.meta_description = payload.meta_description
+    product.is_active = payload.is_active
+    product.save()
+
     return AdminProductOut.model_validate(product)
 
 

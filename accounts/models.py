@@ -1,16 +1,40 @@
+import re
+
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
-from django.core.validators import RegexValidator
 from django.db import models
 from django.utils import timezone
+from django.core.exceptions import ValidationError
 import secrets
 
 from .managers import CustomUserManager
 
-# اعتبارسنجی کد ملی: دقیقاً ۱۰ رقم عددی
-national_id_validator = RegexValidator(
-    regex=r'^\d{10}$',
-    message="کد ملی باید دقیقاً ۱۰ رقم عددی باشد."
-)
+
+def validate_national_id(value: str):
+    """
+    اعتبارسنجی کد ملی ایران (۱۰ رقمی).
+    - باید دقیقاً ۱۰ رقم باشد
+    - چک‌سام استاندارد کد ملی ایران
+    """
+    if not value:
+        return  # خالی بودن قبول است (null=True, blank=True)
+
+    # فقط ۱۰ رقم مجاز
+    if not re.match(r"^\d{10}$", value):
+        raise ValidationError("کد ملی باید دقیقاً ۱۰ رقم باشد.")
+
+    # چک‌سام کد ملی ایران
+    check = int(value[9])
+    s = sum(int(value[i]) * (10 - i) for i in range(9))
+    remainder = s % 11
+
+    valid = False
+    if remainder < 2:
+        valid = (check == remainder)
+    else:
+        valid = (check == (11 - remainder))
+
+    if not valid:
+        raise ValidationError("کد ملی نامعتبر است.")
 
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -22,7 +46,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         blank=True,
         null=True,
         unique=True,
-        validators=[national_id_validator],
+        validators=[validate_national_id],
     )
     is_active    = models.BooleanField(default=True)
     is_staff     = models.BooleanField(default=False)
@@ -39,6 +63,15 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.phone_number
+
+    def clean(self):
+        super().clean()
+        if self.national_id:
+            validate_national_id(self.national_id)
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
 
 
 class Address(models.Model):

@@ -12,6 +12,7 @@ from .schemas import (
     CreateOrderIn,
     OrderOut,
     OrderItemOut,
+    STATUS_DISPLAY,
 )
 from .services import (
     get_active_categories,
@@ -40,12 +41,12 @@ def list_products(
     search: Optional[str] = None,
 ):
     """
-    \u0644\u06cc\u0633\u062a \u0645\u062d\u0635\u0648\u0644\u0627\u062a \u0641\u0639\u0627\u0644 \u0628\u0627 pagination \u0648 \u062c\u0633\u062a\u062c\u0648.
+    لیست محصولات فعال با pagination و جستجو.
 
-    - **page**: \u0634\u0645\u0627\u0631\u0647 \u0635\u0641\u062d\u0647 (\u067e\u06cc\u0634\u200c\u0641\u0631\u0636 \u06f1)
-    - **page_size**: \u062a\u0639\u062f\u0627\u062f \u062f\u0631 \u0647\u0631 \u0635\u0641\u062d\u0647 (\u067e\u06cc\u0634\u200c\u0641\u0631\u0636 \u06f2\u06f0\u060c \u062d\u062f\u0627\u06a9\u062b\u0631 \u06f1\u06f0\u06f0)
-    - **category_id**: \u0641\u06cc\u0644\u062a\u0631 \u0628\u0631 \u0627\u0633\u0627\u0633 \u062f\u0633\u062a\u0647\u200c\u0628\u0646\u062f\u06cc
-    - **search**: \u062c\u0633\u062a\u062c\u0648 \u062f\u0631 \u0646\u0627\u0645 \u0648 \u062a\u0648\u0636\u06cc\u062d\u0627\u062a \u0645\u062d\u0635\u0648\u0644
+    - **page**: شماره صفحه (پیش‌فرض ۱)
+    - **page_size**: تعداد در هر صفحه (پیش‌فرض ۲۰، حداکثر ۱۰۰)
+    - **category_id**: فیلتر بر اساس دسته‌بندی
+    - **search**: جستجو در نام و توضیحات محصول
     """
     data = get_active_products(
         category_id=category_id,
@@ -65,13 +66,10 @@ def list_products(
 @router.get("/products/{product_id}", response=ProductDetailOut)
 def get_product(request, product_id: int):
     try:
-        product = get_product_by_id(product_id)
-        # Force evaluation of images queryset to convert to list
-        list(product.images.all())
-        return product
+        return get_product_by_id(product_id)
     except NotFoundError:
         return JsonResponse(
-            {"error": True, "code": "not_found", "message": "\u0645\u062d\u0635\u0648\u0644 \u06cc\u0627\u0641\u062a \u0646\u0634\u062f."},
+            {"error": True, "code": "not_found", "message": "محصول یافت نشد."},
             status=404,
         )
 
@@ -85,7 +83,6 @@ def create_order_endpoint(request, payload: CreateOrderIn):
             address_id=payload.address_id,
             shipping_method_id=payload.shipping_method_id,
             items=items,
-            idempotency_key=payload.idempotency_key,
         )
     except NotFoundError as e:
         return JsonResponse(
@@ -111,9 +108,13 @@ def create_order_endpoint(request, payload: CreateOrderIn):
         for oi in order.items.select_related("product").all()
     ]
 
+    # ست کردن status_display از STATUS_DISPLAY
+    status_display = STATUS_DISPLAY.get(order.status, order.status)
+
     return OrderOut(
         id=order.pk,
         status=order.status,
+        status_display=status_display,
         total_price=order.total_price,
         shipping_cost=order.shipping_cost,
         payment_url=payment_url,

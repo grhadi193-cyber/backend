@@ -1,136 +1,326 @@
-from typing import Optional
+from decimal import Decimal
+from typing import List, Optional
 
-from django.http import JsonResponse
-from ninja import Router
+from django.db import transaction as db_transaction
+from django.db.models import F, Q
 
-from core.auth import AuthBearer
-from .schemas import (
-    CategoryOut,
-    PaginatedResponse,
-    ProductDetailOut,
-    ProductListOut,
-    CreateOrderIn,
-    OrderOut,
-    OrderItemOut,
-)
-from .services import (
-    get_active_categories,
-    get_active_products,
-    get_product_by_id,
-    create_order,
-)
-from core.exceptions import NotFoundError, InsufficientStockError
-
-router = Router(tags=["Store"])
-
-_auth = AuthBearer()
+from core.exceptions import NotFoundError, InsufficientStockError, AppException
+from .models import Order, OrderItem, OrderStatusHistory, Product
+from accounts.models import Address
+from shipping.models import ShippingMethod
+from shipping.services import calculate_shipping_cost
 
 
-@router.get("/categories", response=list[CategoryOut])
-def list_categories(request):
-    return get_active_categories()
+# ── Catalogue ─────────────────────────────────────────────────────────────────
+
+def get_active_categories():
+    from .models import Category
+    return list(Category.objects.filter(is_active=True))
 
 
-@router.get("/products", response=PaginatedResponse[ProductListOut])
-def list_products(
-    request,
-    page: int = 1,
-    page_size: int = 20,
+def get_active_products(
     category_id: Optional[int] = None,
     search: Optional[str] = None,
-):
+    page: int = 1,
+    page_size: int = 20,
+) -> dict:
     """
-    \u0644\u06cc\u0633\u062a \u0645\u062d\u0635\u0648\u0644\u0627\u062a \u0641\u0639\u0627\u0644 \u0628\u0627 pagination \u0648 \u062c\u0633\u062a\u062c\u0648.
-
-    - **page**: \u0634\u0645\u0627\u0631\u0647 \u0635\u0641\u062d\u0647 (\u067e\u06cc\u0634\u200c\u0641\u0631\u0636 \u06f1)
-    - **page_size**: \u062a\u0639\u062f\u0627\u062f \u062f\u0631 \u0647\u0631 \u0635\u0641\u062d\u0647 (\u067e\u06cc\u0634\u200c\u0641\u0631\u0636 \u06f2\u06f0\u060c \u062d\u062f\u0627\u06a9\u062b\u0631 \u06f1\u06f0\u06f0)
-    - **category_id**: \u0641\u06cc\u0644\u062a\u0631 \u0628\u0631 \u0627\u0633\u0627\u0633 \u062f\u0633\u062a\u0647\u200c\u0628\u0646\u062f\u06cc
-    - **search**: \u062c\u0633\u062a\u062c\u0648 \u062f\u0631 \u0646\u0627\u0645 \u0648 \u062a\u0648\u0636\u06cc\u062d\u0627\u062a \u0645\u062d\u0635\u0648\u0644
+    لیست محصولات فعال با پشتیبانی از:
+      - فیلتر category_id
+      - جستجو در name و description
+      - صفحه‌بندی با page و page_size
+    خروجی: دیکشنری سازگار با PaginatedResponse
     """
-    data = get_active_products(
-        category_id=category_id,
-        search=search,
-        page=page,
-        page_size=page_size,
-    )
-    return PaginatedResponse[ProductListOut](
-        count=data["count"],
-        page=data["page"],
-        page_size=data["page_size"],
-        total_pages=data["total_pages"],
-        results=[ProductListOut.model_validate(p) for p in data["results"]],
+    # اعتبارسنجی محدوده‌ها
+    page = max(1, page)
+    page_size = max(1, min(page_size, 100))
+
+    qs = (
+        Product.objects
+        .select_related("category")
+        .filter(is_active=True)
+        .order_by("-created_at")
     )
 
+    if category_id:
+        qs = qs.filter(category_id=category_id)
 
-@router.get("/products/{product_id}", response=ProductDetailOut)
-def get_product(request, product_id: int):
+    if search:
+        qs = qs.filter(
+            Q(name__icontains=search) | Q(description__icontains=search)
+        )
+
+    total = qs.count()
+    start = (page - 1) * page_size
+    results = list(qs[start: start + page_size])
+    total_pages = max(1, (total + page_size - 1) // page_size)
+
+    return {
+        "count": total,
+        "page": page,
+        "page_size": page_size,
+        "total_pages": total_pages,
+        "results": results,
+    }
+
+
+def get_product_by_id(product_id: int) -> Product:
+    """
+    جزئیات یک محصول فعال.
+    - view_count یک واحد افزایش می‌یابد.
+    - images (گالری) از طریق prefetch_related بارگذاری می‌شوند.
+    """
     try:
-        product = get_product_by_id(product_id)
-        # Convert RelatedManager to list for Pydantic validation
-        return ProductDetailOut(
-            id=product.id,
-            name=product.name,
-            slug=product.slug,
-            description=product.description,
-            price=product.price,
-            discount_price=product.discount_price,
-            sku=product.sku,
-            meta_title=product.meta_title,
-            meta_description=product.meta_description,
-            view_count=product.view_count,
-            stock=product.stock,
-            weight=product.weight,
-            image=product.image.url if product.image else None,
-            category=product.category,
-            images=list(product.images.all()),
+        product = (
+            Product.objects
+            .select_related("category")
+            .prefetch_related("images")
+            .get(pk=product_id, is_active=True)
         )
-    except NotFoundError:
-        return JsonResponse(
-            {"error": True, "code": "not_found", "message": "\u0645\u062d\u0635\u0648\u0644 \u06cc\u0627\u0641\u062a \u0646\u0634\u062f."},
-            status=404,
-        )
+    except Product.DoesNotExist:
+        raise NotFoundError(f"Product {product_id} not found")
+
+    # افزایش view_count بدون race condition
+    Product.objects.filter(pk=product_id).update(view_count=F("view_count") + 1)
+
+    # مقدار view_count در آبجکت بازگشتی را دستی بروزرسانی می‌کنیم
+    product.view_count += 1
+
+    return product
 
 
-@router.post("/orders", response=OrderOut, auth=_auth)
-def create_order_endpoint(request, payload: CreateOrderIn):
-    items = [item.dict() for item in payload.items]
+def _get_effective_price(product: Product) -> Decimal:
+    """قیمت نهایی محصول — اگر تخفیف دارد همان را برمی‌گرداند."""
+    return product.discount_price if product.discount_price is not None else product.price
+
+
+# ── Orders ────────────────────────────────────────────────────────────────────
+
+def create_order(user, address_id: int, shipping_method_id: int, items: list) -> dict:
     try:
-        result = create_order(
-            user=request.auth,
-            address_id=payload.address_id,
-            shipping_method_id=payload.shipping_method_id,
-            items=items,
-            idempotency_key=payload.idempotency_key,
-        )
-    except NotFoundError as e:
-        return JsonResponse(
-            {"error": True, "code": "not_found", "message": str(e)},
-            status=404,
-        )
-    except InsufficientStockError as e:
-        return JsonResponse(
-            {"error": True, "code": "insufficient_stock", "message": str(e)},
-            status=400,
+        address = Address.objects.get(pk=address_id, user=user)
+    except Address.DoesNotExist:
+        raise NotFoundError("Address not found")
+
+    try:
+        method = ShippingMethod.objects.get(pk=shipping_method_id, is_active=True)
+    except ShippingMethod.DoesNotExist:
+        raise NotFoundError("Shipping method not found")
+
+    if not items:
+        raise AppException("سبد خرید خالی است", status_code=400)
+
+    # ابتدا ساختار اولیه آیتم‌ها را بساز (بدون چک موجودی)
+    order_items_raw = []
+    total_weight = 0.0
+
+    for item_in in items:
+        product_id = item_in["product_id"] if isinstance(item_in, dict) else item_in.product_id
+        quantity   = item_in["quantity"]   if isinstance(item_in, dict) else item_in.quantity
+
+        try:
+            product = Product.objects.get(pk=product_id, is_active=True)
+        except Product.DoesNotExist:
+            raise NotFoundError(f"Product {product_id} not found")
+
+        effective_price = _get_effective_price(product)
+        order_items_raw.append((product.pk, quantity, effective_price, float(product.weight)))
+        total_weight += float(product.weight) * quantity
+
+    # محاسبه قیمت کل سفارش (قبل از atomic)
+    total = sum(price * qty for _, qty, price, _ in order_items_raw)
+
+    # محاسبه هزینه ارسال با وزن و قیمت واقعی
+    shipping_cost = calculate_shipping_cost(method, total_weight, total)
+
+    shipping_address_snapshot = {
+        "province":    address.province,
+        "city":        address.city,
+        "street":      address.street,
+        "postal_code": address.postal_code,
+        "title":       address.title,
+    }
+
+    # کل منطق چک موجودی + کسر + ایجاد سفارش داخل atomic + select_for_update
+    with db_transaction.atomic():
+        # Lock کردن محصولات به ترتیب ID برای جلوگیری از deadlock
+        product_ids = sorted({pk for pk, _, _, _ in order_items_raw})
+        locked_products = {
+            p.pk: p for p in
+            Product.objects.select_for_update().filter(pk__in=product_ids).order_by("pk")
+        }
+
+        # چک موجودی با قفل — هرگز race condition ندارد
+        for pk, qty, price, _ in order_items_raw:
+            product = locked_products.get(pk)
+            if product is None:
+                raise NotFoundError(f"Product {pk} یافت نشد (ممکن است حذف شده باشد)")
+            if product.stock < qty:
+                raise InsufficientStockError(product.name, product.stock, qty)
+
+        # ایجاد سفارش
+        order = Order.objects.create(
+            user=user,
+            address=address,
+            shipping_method=method,
+            status="pending",
+            total_price=total + Decimal(str(shipping_cost)),
+            shipping_cost=Decimal(str(shipping_cost)),
+            shipping_address_snapshot=shipping_address_snapshot,
         )
 
-    order = result["order"]
-    payment_url = result.get("payment_url")
-
-    order_items_out = [
-        OrderItemOut(
-            product_id=oi.product_id,
-            product_name=oi.product_name_snapshot or oi.product.name,
-            quantity=oi.quantity,
-            unit_price=oi.unit_price,
+        OrderStatusHistory.objects.create(
+            order=order, status="pending", note="سفارش ثبت شد", created_by=user
         )
-        for oi in order.items.select_related("product").all()
-    ]
 
-    return OrderOut(
-        id=order.pk,
-        status=order.status,
-        total_price=order.total_price,
-        shipping_cost=order.shipping_cost,
-        payment_url=payment_url,
-        items=order_items_out,
+        # ایجاد OrderItem و کسر موجودی
+        for pk, qty, price, _ in order_items_raw:
+            product = locked_products[pk]
+            OrderItem.objects.create(
+                order=order,
+                product=product,
+                quantity=qty,
+                unit_price=price,
+                product_name_snapshot=product.name,
+            )
+            Product.objects.filter(pk=pk).update(stock=F("stock") - qty)
+
+    return {"order": order, "payment_url": None}
+
+
+def cancel_order(order_id: int, user) -> Order:
+    """
+    لغو سفارش توسط کاربر.
+    فقط سفارش‌های pending قابل لغو هستند.
+    موجودی محصولات برگشت داده می‌شود.
+    یک رکورد تاریخچه با status=cancelled ثبت می‌شود.
+    """
+    with db_transaction.atomic():
+        try:
+            order = Order.objects.select_for_update().get(pk=order_id, user=user)
+        except Order.DoesNotExist:
+            raise AppException("سفارش یافت نشد", status_code=404)
+
+        if order.status != "pending":
+            raise AppException("تنها سفارش‌های در حال تایید قابل لغو هستند.", status_code=400)
+
+        for item in order.items.select_related("product"):
+            Product.objects.filter(pk=item.product_id).update(
+                stock=F("stock") + item.quantity
+            )
+
+        order.status = "cancelled"
+        order.save(update_fields=["status"])
+
+        OrderStatusHistory.objects.create(
+            order=order, status="cancelled", note="لغو توسط کاربر", created_by=user
+        )
+
+    return order
+
+
+# گذارهای مجاز وضعیت سفارش
+VALID_STATUS_TRANSITIONS = {
+    "pending": {"paid", "cancelled"},
+    "paid": {"processing", "cancelled"},
+    "processing": {"shipped", "cancelled"},
+    "shipped": {"delivered"},
+    "delivered": set(),
+    "cancelled": set(),
+}
+
+
+def update_order_status(
+    order_id: int,
+    new_status: str,
+    admin_user,
+    tracking_number: str = "",
+    postal_tracking: str = "",
+    note: str = "",
+) -> Order:
+    """
+    تغییر وضعیت سفارش توسط ادمین.
+    گذار وضعیت کنترل می‌شود — پرش غیرمجاز ممکن نیست.
+    یک رکورد در OrderStatusHistory ثبت می‌کند.
+    """
+    valid_statuses = {choice[0] for choice in Order.STATUS_CHOICES}
+    if new_status not in valid_statuses:
+        raise AppException(
+            f"وضعیت نامعتبر است. مقادیر مجاز: {', '.join(sorted(valid_statuses))}",
+            status_code=400,
+        )
+
+    with db_transaction.atomic():
+        try:
+            order = Order.objects.select_for_update().get(pk=order_id)
+        except Order.DoesNotExist:
+            raise AppException("سفارش یافت نشد", status_code=404)
+
+        current_status = order.status
+
+        # اگر وضعیت تغییر نکرده، نیازی به آپدیت نیست
+        if current_status == new_status:
+            return order
+
+        # چک گذار مجاز
+        allowed_next = VALID_STATUS_TRANSITIONS.get(current_status, set())
+        if new_status not in allowed_next:
+            current_display = dict(Order.STATUS_CHOICES).get(current_status, current_status)
+            new_display = dict(Order.STATUS_CHOICES).get(new_status, new_status)
+            raise AppException(
+                f"گذار وضعیت از «{current_display}» به «{new_display}» مجاز نیست.",
+                status_code=400,
+            )
+
+        update_fields = ["status"]
+        order.status = new_status
+
+        if tracking_number:
+            order.tracking_number = tracking_number
+            update_fields.append("tracking_number")
+
+        if postal_tracking:
+            order.postal_tracking = postal_tracking
+            update_fields.append("postal_tracking")
+
+        if new_status == "shipped" and not order.shipped_at:
+            from django.utils import timezone
+            order.shipped_at = timezone.now()
+            update_fields.append("shipped_at")
+
+        if new_status == "delivered" and not order.delivered_at:
+            from django.utils import timezone
+            order.delivered_at = timezone.now()
+            update_fields.append("delivered_at")
+
+        order.save(update_fields=update_fields)
+
+        OrderStatusHistory.objects.create(
+            order=order,
+            status=new_status,
+            note=note or f"وضعیت توسط ادمین به «{new_status}» تغییر کرد",
+            created_by=admin_user,
+        )
+
+    return order
+
+
+def get_user_orders(user) -> List[Order]:
+    """لیست سفارش‌های کاربر به همراه آیتم‌ها و تاریخچه وضعیت."""
+    return list(
+        Order.objects.filter(user=user)
+        .prefetch_related("items__product", "history")
+        .order_by("-created_at")
     )
+
+
+def get_user_order_detail(user, order_id: int) -> Order:
+    """جزئیات یک سفارش خاص به همراه آیتم‌ها و تاریخچه وضعیت."""
+    try:
+        return (
+            Order.objects.filter(user=user)
+            .prefetch_related("items__product", "history")
+            .get(pk=order_id)
+        )
+    except Order.DoesNotExist:
+        raise AppException("سفارش یافت نشد", status_code=404)

@@ -109,6 +109,14 @@ class ProductDetailOut(BaseModel):
             return v.url
         return str(v)
 
+    @field_validator('images', mode='before')
+    @classmethod
+    def convert_images_to_list(cls, v):
+        """تبدیل RelatedManager به لیست"""
+        if hasattr(v, 'all'):
+            return list(v.all())
+        return v if isinstance(v, list) else []
+
     @computed_field
     @property
     def effective_price(self) -> Decimal:

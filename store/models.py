@@ -23,7 +23,7 @@ class Category(models.Model):
 # ── Product ───────────────────────────────────────────────────────────────────
 
 class Product(models.Model):
-    # PROTECT: اگر دسته‌بندی‌ای که محصول دارد حذف شود → ProtectedError
+    # PROTECT: اگر دسته‌بندی دارای محصول باشد، حذف آن بلاک می‌شود
     category         = models.ForeignKey(
         Category, on_delete=models.PROTECT,
         null=True, blank=True, related_name="products"
@@ -33,8 +33,7 @@ class Product(models.Model):
     description      = models.TextField(blank=True, default="")
     price            = models.DecimalField(max_digits=12, decimal_places=0)
     discount_price   = models.DecimalField(max_digits=12, decimal_places=0, null=True, blank=True)
-    # SKU: بدون null — مقدار پیش‌فرض "" برای ردیف‌های بدون SKU
-    sku              = models.CharField(max_length=100, blank=True, default="", unique=True)
+    sku              = models.CharField(max_length=100, blank=True, null=True)
     meta_title       = models.CharField(max_length=200, blank=True)
     meta_description = models.TextField(blank=True)
     view_count       = models.PositiveIntegerField(default=0)
@@ -51,6 +50,11 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+    @property
+    def effective_price(self):
+        """قیمت نهایی که مشتری می‌پردازد — اگر تخفیف دارد همان را برمی‌گرداند."""
+        return self.discount_price if self.discount_price is not None else self.price
 
 
 # ── ProductImage ──────────────────────────────────────────────────────────────
@@ -93,18 +97,17 @@ class Order(models.Model):
     shipping_method = models.ForeignKey(
         "shipping.ShippingMethod", on_delete=models.PROTECT, related_name="orders"
     )
-    status                    = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
-    total_price               = models.DecimalField(max_digits=14, decimal_places=0)
-    shipping_cost             = models.DecimalField(max_digits=10, decimal_places=0, default=0)
-    tracking_number           = models.CharField(max_length=64, blank=True, default="")
-    postal_tracking           = models.CharField(max_length=64, blank=True, default="")
-    carrier_name              = models.CharField(max_length=100, blank=True)
-    shipped_at                = models.DateTimeField(null=True, blank=True)
-    delivered_at              = models.DateTimeField(null=True, blank=True)
-    customer_notes            = models.TextField(blank=True)
+    status                   = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
+    total_price              = models.DecimalField(max_digits=14, decimal_places=0)
+    shipping_cost            = models.DecimalField(max_digits=10, decimal_places=0, default=0)
+    tracking_number          = models.CharField(max_length=64, blank=True, default="")
+    postal_tracking          = models.CharField(max_length=64, blank=True, default="")
+    carrier_name             = models.CharField(max_length=100, blank=True)
+    shipped_at               = models.DateTimeField(null=True, blank=True)
+    delivered_at             = models.DateTimeField(null=True, blank=True)
+    customer_notes           = models.TextField(blank=True)
     shipping_address_snapshot = models.JSONField(null=True, blank=True)
-    idempotency_key           = models.CharField(max_length=64, blank=True, db_index=True)
-    created_at                = models.DateTimeField(auto_now_add=True)
+    created_at               = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name        = "سفارش"
@@ -118,6 +121,8 @@ class Order(models.Model):
         """Auto-generate tracking_number after first INSERT only."""
         is_new = self.pk is None
         super().save(*args, **kwargs)
+        # Only set tracking_number on the very first save to avoid
+        # an extra UPDATE on every subsequent save() call.
         if is_new and not self.tracking_number:
             self.tracking_number = f"ORD-{self.pk:06d}"
             Order.objects.filter(pk=self.pk).update(tracking_number=self.tracking_number)
@@ -126,11 +131,11 @@ class Order(models.Model):
 # ── OrderItem ─────────────────────────────────────────────────────────────────
 
 class OrderItem(models.Model):
-    order                 = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="items")
-    product               = models.ForeignKey(Product, on_delete=models.PROTECT, related_name="order_items")
+    order                = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="items")
+    product              = models.ForeignKey(Product, on_delete=models.PROTECT, related_name="order_items")
     product_name_snapshot = models.CharField(max_length=256, blank=True)
-    quantity              = models.PositiveIntegerField()
-    unit_price            = models.DecimalField(max_digits=12, decimal_places=0)
+    quantity             = models.PositiveIntegerField()
+    unit_price           = models.DecimalField(max_digits=12, decimal_places=0)
 
     class Meta:
         verbose_name        = "آیتم سفارش"

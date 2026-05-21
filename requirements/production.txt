@@ -1,0 +1,7 @@
+-r base.txt
+
+# WSGI server
+gunicorn>=21.2.0
+
+# PostgreSQL adapter
+psycopg2-binary>=2.9.9

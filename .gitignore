@@ -1,0 +1,50 @@
+# === Sensitive / environment files ===
+.env
+.env.local
+.env.production
+
+# === Local database (NEVER commit) ===
+db.sqlite3
+*.sqlite3
+
+# === Python artifacts ===
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
+
+# === Virtual environments ===
+venv/
+.venv/
+env/
+.env/
+pip-wheel-metadata/
+
+# === Django artifacts ===
+staticfiles/
+media/
+logs/*.log
+
+# === Development scripts (apply_phase_*.py) ===
+apply_phase_*.py
+
+# === Editor / OS files ===
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+Thumbs.db
+
+# === Byte-compiled / optimized / DLL files ===
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# === Test / coverage artifacts ===
+.coverage
+htmlcov/
+.pytest_cache/

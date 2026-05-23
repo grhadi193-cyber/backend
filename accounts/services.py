@@ -72,6 +72,21 @@ def verify_otp(phone_number: str, code: str, password: Optional[str] = None) -> 
     else:
         user.save(update_fields=["is_active"])
 
+    # اطلاع‌رسانی ثبت‌نام
+    if created:
+        try:
+            from notifications.services import send_notification
+            send_notification(
+                event_type="user_registered",
+                user=user,
+                order=None,
+                use_queue=True,
+            )
+        except Exception as exc:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning("[Notification] Failed to send user_registered: %s", exc)
+
     return user
 
 

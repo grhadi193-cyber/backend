@@ -173,6 +173,20 @@ def create_order(user, address_id: int, shipping_method_id: int, items: list) ->
             order=order, status="pending", note="سفارش ثبت شد", created_by=user
         )
 
+        # اطلاع‌رسانی ثبت سفارش
+        try:
+            from notifications.services import send_notification
+            send_notification(
+                event_type="order_created",
+                user=user,
+                order=order,
+                use_queue=True,
+            )
+        except Exception as exc:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning("[Notification] Failed to send order_created: %s", exc)
+
         # ایجاد OrderItem و کسر موجودی
         for pk, qty, price, _ in order_items_raw:
             product = locked_products[pk]
@@ -215,6 +229,20 @@ def cancel_order(order_id: int, user) -> Order:
         OrderStatusHistory.objects.create(
             order=order, status="cancelled", note="لغو توسط کاربر", created_by=user
         )
+
+    # اطلاع‌رسانی لغو سفارش
+    try:
+        from notifications.services import send_notification
+        send_notification(
+            event_type="order_cancelled",
+            user=user,
+            order=order,
+            use_queue=True,
+        )
+    except Exception as exc:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.warning("[Notification] Failed to send order_cancelled: %s", exc)
 
     return order
 
@@ -302,7 +330,37 @@ def update_order_status(
             created_by=admin_user,
         )
 
+    # اطلاع‌رسانی تغییر وضعیت سفارش
+    _notify_status_change(order, new_status)
+
     return order
+
+
+def _notify_status_change(order, new_status: str) -> None:
+    """ارسال نوتیفیکیشن بر اساس تغییر وضعیت سفارش."""
+    event_map = {
+        "paid": "order_paid",
+        "processing": "order_processing",
+        "shipped": "order_shipped",
+        "delivered": "order_delivered",
+        "cancelled": "order_cancelled",
+    }
+    event_type = event_map.get(new_status)
+    if not event_type:
+        return
+
+    try:
+        from notifications.services import send_notification
+        send_notification(
+            event_type=event_type,
+            user=order.user,
+            order=order,
+            use_queue=True,
+        )
+    except Exception as exc:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.warning("[Notification] Failed to send %s: %s", event_type, exc)
 
 
 def get_user_orders(user) -> List[Order]:

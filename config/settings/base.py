@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     # project apps
     "core",
     "sms",
+    "notifications",
     "accounts",
     "store",
     "shipping",

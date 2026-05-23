@@ -28,21 +28,30 @@
 - [x] Phase 17 — Admin API کامل
 - [x] Phase 18 — SiteSettings کامل
 - [x] Phase 19 — Pagination + Search
-- [x] Phase 20 — Hardening v2 ✅
+- [x] Phase 20 — Hardening v2
 
-## Existing Apps
-- core/        — exceptions, health, SiteSettings (کامل — فاز 18)
-- sms/         — SMSLog, send_otp, send_order_success_sms
-- accounts/    — User, Address, OTPRecord, auth endpoints
-- store/       — Category, Product, ProductImage, Order, OrderItem, OrderStatusHistory
-- shipping/    — ShippingZone, ShippingMethod
-- payment/     — Transaction, zarinpal provider, mock provider, orchestrator
-- blog/        — Post
-- admin_panel/ — Admin API کامل (فاز 17) + settings endpoints (فاز 18)
+## Completed Phases (v3 — Notification + Advanced Shipping)
+- [x] Phase 21 — Notification System (Templates, Channels, Queue, Logs)
+- [x] Phase 22 — Advanced Shipping (Province, City, Weight-based Rates)
+- [x] Phase 23 — API Documentation Complete Update
+- [x] Phase 24 — Bug Fixes & Final Review
 
 ---
 
-## Model Field Map (وضعیت دقیق فیلدها)
+## Existing Apps
+- core/         — exceptions, health, SiteSettings
+- sms/          — SMSLog, send_otp, send_order_success_sms
+- notifications/ — NotificationTemplate, NotificationChannel, NotificationLog, NotificationQueue, auto-triggered events
+- accounts/     — User, Address, OTPRecord, auth endpoints
+- store/        — Category, Product, ProductImage, Order, OrderItem, OrderStatusHistory
+- shipping/     — ShippingZone, ShippingMethod, Province, City, ShippingRate
+- payment/      — Transaction, zarinpal provider, mock provider, orchestrator
+- blog/         — Post
+- admin_panel/  — Admin API + settings endpoints
+
+---
+
+## Model Field Map
 
 ### accounts.User
 - phone_number (unique)
@@ -88,148 +97,190 @@
 - order (FK), status, note, created_at, created_by (FK User, null)
 
 ### shipping.ShippingZone
-- name, provinces (JSONField)
+- name, provinces (JSONField), is_active
 
 ### shipping.ShippingMethod
-- name, slug, base_cost, cost_per_kg, free_above (null)
+- name, slug, carrier_name, tracking_url_template
+- base_cost, cost_per_kg, free_above (null)
 - min_days, max_days, zone (FK, null), is_active
+
+### shipping.Province
+- name (unique), code, is_active
+
+### shipping.City
+- province (FK), name, code, is_active
+
+### shipping.ShippingRate
+- shipping_method (FK), province (FK), city (FK, null)
+- weight_min, weight_max, cost, is_active
 
 ### payment.Transaction
 - order (FK), amount, provider, ref_id
 - status (pending/success/failed)
-- gateway_response (JSONField), created_at
+- gateway_response (JSONField), callback_token, created_at
 
 ### core.SiteSettings
-- site_name (default="فروشگاه من")
-- logo (ImageField, null/blank)
-- banner_text
-- announcement
-- primary_color (default="#01696f")
-- maintenance_mode (BooleanField)
-- social_instagram (URLField)
-- social_telegram (URLField)
-- support_phone
-- hero_title (legacy)
-- hero_text (legacy)
-- hero_banner (legacy, ImageField)
-- about_us (legacy)
+- site_name, logo, banner_text, announcement, primary_color
+- maintenance_mode, social_instagram, social_telegram, support_phone
+- hero_title, hero_text, hero_banner, about_us
+
+### notifications.NotificationChannel
+- name (choices: sms/email/whatsapp/push), is_active, config (JSONField)
+
+### notifications.NotificationTemplate
+- event_type, channel (FK)
+- subject, template_text, is_active, description
+
+### notifications.NotificationLog
+- id (UUID), template (FK), event_type, channel (FK)
+- recipient, rendered_message, subject, status
+- error_message, sent_at, retry_count, context_data (JSONField)
+- user (FK, null), order (FK, null), created_at
+
+### notifications.NotificationQueue
+- id (UUID), template (FK), recipient, context_data (JSONField)
+- user (FK, null), order (FK, null)
+- status, error_message, processed_at, retry_count, created_at
 
 ---
 
-## Migration Heads (آخرین migration هر app)
-- accounts:    0009_alter_user_national_id
-- store:       0008_product_discount_price_product_meta_description_and_more
-- shipping:    0002_shippingzone_shippingmethod_cost_per_kg_and_more
-- payment:     0002_transaction_provider
-- core:        0002_site_settings_complete
-- sms:         0001_initial
-- blog:        0001_initial
-- admin_panel: (no migrations — بدون مدل)
-
-> ⚠️ فاز 20 هیچ migration جدیدی ندارد.
-> خروجی `makemigrations --check` باید `No changes detected` باشد.
+## Migration Heads
+- accounts:       0010_alter_user_national_id
+- store:          0011_remove_order_idempotency_key_alter_product_sku
+- shipping:       0003_province_city_shippingrate
+- payment:        0003_transaction_callback_token
+- core:           0002_site_settings_complete
+- sms:            0001_initial
+- blog:           0001_initial
+- admin_panel:    (no migrations)
+- notifications:  0002_default_channels
 
 ---
 
-## API Endpoints (وضعیت فعلی)
+## API Endpoints
 
 ### Auth — /api/auth/
 - POST /send-otp
 - POST /verify-otp
+- POST /login
+- POST /forgot-password
+- POST /reset-password
+- POST /change-password
 - GET  /profile
-- PATCH /profile  (full_name, email, national_id)
+- PATCH /profile
 - GET  /addresses
 - POST /addresses
 - DELETE /addresses/{id}
 - GET  /orders
 - GET  /orders/{id}
-- DELETE /orders/{id}  ← لغو سفارش (فقط pending) + برگشت موجودی
+- DELETE /orders/{id}
 
 ### Store — /api/
 - GET /categories
-- GET /products            ← pagination + search (فاز 19)
+- GET /products (pagination + search)
 - GET /products/{id}
-- POST /orders (auth)
+- POST /orders
 
 ### Shipping — /api/shipping/
 - GET  /methods
-- POST /options
+- POST /options (legacy)
+- GET  /provinces
+- GET  /provinces/{id}/cities
+- POST /calculate
+
+### Shipping Admin — /api/shipping/admin/
+- GET  /shipping-methods/
+- GET  /shipping-methods/{id}/rates/
+- POST /shipping-rates/
+- PUT  /shipping-rates/{id}/
+- DELETE /shipping-rates/{id}/
 
 ### Payment — /api/payment/
-- POST /initiate (auth)
+- POST /initiate
 - GET  /callback
-- GET  /mock-callback (DEBUG only)
 
 ### Blog — /api/blog/
-- (endpoints موجود)
+- GET /posts
+- GET /posts/{slug}
 
 ### Core — /api/
 - GET /health
-- GET /settings          ← عمومی، بدون auth (فاز 18)
+- GET /settings
 
 ### Admin — /api/admin/
-#### داشبورد
 - GET /dashboard
-
-#### مدیریت کاربران
-- GET  /users/
-- GET  /users/{id}/
-- PUT  /users/{id}/
-
-#### مدیریت سفارش‌ها
-- GET  /orders/
-- GET  /orders/{id}/
-- PUT  /orders/{id}/status/
-
-#### مدیریت محصولات
-- GET    /products/
-- POST   /products/
-- GET    /products/{id}/
-- PUT    /products/{id}/
-- PUT    /products/{id}/stock/
+- GET /users/
+- GET /users/{id}/
+- PUT /users/{id}/
+- GET /orders/
+- GET /orders/{id}/
+- PUT /orders/{id}/status/
+- GET /products/
+- POST /products/
+- GET /products/{id}/
+- PUT /products/{id}/
+- PUT /products/{id}/stock/
 - DELETE /products/{id}/
-
-#### آنالیتیکس
 - GET /analytics/overview/
-
-#### تنظیمات سایت (فاز 18)
 - GET /settings/
 - PUT /settings/
 
+### Notifications Admin — /api/notifications/admin/
+- GET  /channels/
+- POST /channels/
+- GET  /channels/{id}/
+- PUT  /channels/{id}/
+- GET  /templates/
+- POST /templates/
+- GET  /templates/{id}/
+- PUT  /templates/{id}/
+- DELETE /templates/{id}/
+- GET  /logs/
+- GET  /logs/{id}/
+- GET  /queue/
+- POST /queue/process/
+- GET  /variables/
+- GET  /event-types/
+- POST /templates/{id}/preview/
+- POST /templates/{id}/send-test/
+
 ---
 
-## Settings Constants (فاز 20)
-- `DEFAULT_PAGE_SIZE = 20`       — پیش‌فرض صفحه‌بندی
-- `MAX_PAGE_SIZE = 100`          — حداکثر تعداد در هر صفحه
-- `OTP_EXPIRY_MINUTES` (env)     — پیش‌فرض: 2 دقیقه
-- `OTP_RATE_LIMIT_SECONDS = 60`  — فاصله بین ارسال‌های OTP
-- `CORS_ALLOWED_ORIGINS` (env)   — پیش‌فرض: [] (در production باید تنظیم شود)
+## Notification Auto-Triggered Events
+1. `user_registered` — After new user OTP verification
+2. `order_created` — After order placement
+3. `order_paid` — After successful payment
+4. `order_confirmed` — Status → paid
+5. `order_processing` — Status → processing
+6. `order_shipped` — Status → shipped
+7. `order_delivered` — Status → delivered
+8. `order_cancelled` — Order cancellation
 
 ---
 
-## Hardening v2 — فاز 20
-- OTP rate-limit از `settings.OTP_RATE_LIMIT_SECONDS` خوانده می‌شود (نه عدد ثابت)
-- `OTP_EXPIRY_MINUTES` در `.env.example` مستند شد
-- `/error-test` endpoint از core/api.py حذف شد
-- `whitenoise` تکراری از `requirements/production.txt` حذف شد
-- `CORS_ALLOWED_ORIGINS` default به `[]` تغییر کرد (production-safe)
-- `DEPLOY.md` با جدول env variables کامل شد
+## Settings Constants
+- `DEFAULT_PAGE_SIZE = 20`
+- `MAX_PAGE_SIZE = 100`
+- `OTP_EXPIRY_MINUTES` (env)
+- `OTP_RATE_LIMIT_SECONDS = 60`
+- `CORS_ALLOWED_ORIGINS` (env)
 
 ---
 
-## Known Issues / ناقص‌ها
-- store/api.py و payment/api.py هر دو AuthBearer تعریف کرده‌اند (تکراری — قابل refactor در آینده)
-- debug_toolbar: خطای template بی‌خطر در ترمینال
+## Management Commands
+- `python manage.py process_notification_queue --batch-size=50`
+- `python manage.py load_provinces_cities`
+- `python manage.py migrate`
+- `python manage.py makemigrations`
+- `python manage.py createsuperuser`
+- `python manage.py collectstatic`
+- `python manage.py check`
+- `python manage.py runserver`
 
-## Last Successful Commands
-```
-python apply_phase_20.py
-python manage.py check              → 0 issues
-python manage.py makemigrations --check  → No changes detected
-python manage.py migrate            → No new migrations
-python manage.py runserver          → OK
-python manage.py check --settings=config.settings.production → OK
-```
+---
 
 ## Project Status
 ✅ پروژه آماده production است.
+✅ سیستم اطلاع‌رسانی کامل با قابلیت شخصی‌سازی
+✅ سیستم Shipping پیشرفته با province/city/weight
+✅ API Documentation کامل و به‌روز

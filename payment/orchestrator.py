@@ -99,6 +99,19 @@ def _mark_order_paid(txn: Transaction) -> None:
     order.status = "paid"
     order.save(update_fields=["status"])
 
+    # اطلاع‌رسانی پرداخت موفق
+    try:
+        from notifications.services import send_notification
+        send_notification(
+            event_type="order_paid",
+            user=order.user,
+            order=order,
+            use_queue=True,
+        )
+    except Exception as notif_exc:
+        logger.error(f"[Payment] Notification failed after payment for order #{order.pk}: {notif_exc}")
+
+    # همچنان SMS قدیمی هم ارسال شود (backward compatible)
     try:
         send_order_success_sms(phone_number=order.user.phone_number, order_id=order.pk)
     except Exception as sms_exc:

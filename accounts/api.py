@@ -6,6 +6,7 @@ from core.auth import AuthBearer
 from core.exceptions import AppException
 from .schemas import (
     SendOTPIn, VerifyOTPIn, TokenOut,
+    LoginIn, ForgotPasswordIn, ResetPasswordIn, ChangePasswordIn,
     AddressIn, AddressOut,
     ProfileOut, UpdateProfileIn,
 )
@@ -32,7 +33,7 @@ def send_otp(request, payload: SendOTPIn):
 def verify_otp(request, payload: VerifyOTPIn):
     from rest_framework_simplejwt.tokens import RefreshToken
     try:
-        user = svc.verify_otp(payload.phone_number, payload.code)
+        user = svc.verify_otp(payload.phone_number, payload.code, password=payload.password)
     except AppException as e:
         return JsonResponse(
             {"error": True, "code": "otp_invalid", "message": e.detail},
@@ -40,6 +41,58 @@ def verify_otp(request, payload: VerifyOTPIn):
         )
     refresh = RefreshToken.for_user(user)
     return TokenOut(access=str(refresh.access_token), refresh=str(refresh))
+
+
+@router.post("/login", auth=None, response=TokenOut, summary="ورود با رمز عبور")
+def login(request, payload: LoginIn):
+    from rest_framework_simplejwt.tokens import RefreshToken
+    try:
+        user = svc.login_with_password(payload.phone_number, payload.password)
+    except AppException as e:
+        return JsonResponse(
+            {"error": True, "code": "login_error", "message": e.detail},
+            status=e.status_code,
+        )
+    refresh = RefreshToken.for_user(user)
+    return TokenOut(access=str(refresh.access_token), refresh=str(refresh))
+
+
+@router.post("/forgot-password", auth=None, summary="درخواست بازنشانی رمز عبور (ارسال OTP)")
+def forgot_password(request, payload: ForgotPasswordIn):
+    try:
+        svc.forgot_password(payload.phone_number)
+    except AppException as e:
+        return JsonResponse(
+            {"error": True, "code": "forgot_password_error", "message": e.detail},
+            status=e.status_code,
+        )
+    return {"detail": "کد تایید برای بازنشانی رمز عبور ارسال شد"}
+
+
+@router.post("/reset-password", auth=None, response=TokenOut, summary="بازنشانی رمز عبور با OTP")
+def reset_password(request, payload: ResetPasswordIn):
+    from rest_framework_simplejwt.tokens import RefreshToken
+    try:
+        user = svc.reset_password(payload.phone_number, payload.code, payload.new_password)
+    except AppException as e:
+        return JsonResponse(
+            {"error": True, "code": "reset_password_error", "message": e.detail},
+            status=e.status_code,
+        )
+    refresh = RefreshToken.for_user(user)
+    return TokenOut(access=str(refresh.access_token), refresh=str(refresh))
+
+
+@router.post("/change-password", auth=_auth, summary="تغییر رمز عبور")
+def change_password(request, payload: ChangePasswordIn):
+    try:
+        svc.change_password(request.auth, payload.old_password, payload.new_password)
+    except AppException as e:
+        return JsonResponse(
+            {"error": True, "code": "change_password_error", "message": e.detail},
+            status=e.status_code,
+        )
+    return {"detail": "رمز عبور با موفقیت تغییر یافت"}
 
 
 @router.get("/addresses", auth=_auth, response=List[AddressOut], summary="لیست آدرس‌ها")

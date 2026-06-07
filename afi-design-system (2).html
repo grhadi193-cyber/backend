@@ -1,0 +1,2323 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AFI Design System — آتی فرزام ایرانیان</title>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+
+    /* ══════════════════════════════════════════
+       DESIGN TOKENS
+    ══════════════════════════════════════════ */
+    :root {
+      /* — Colors: Background — */
+      --bg-primary:   #FAFAF7;
+      --bg-secondary: #F0EDE6;
+      --bg-tertiary:  #E5E1D8;
+
+      /* — Colors: Text — */
+      --text-primary:   #1C1C2E;
+      --text-secondary: #4A4A6A;
+      --text-tertiary:  #8A8AA8;
+
+      /* — Colors: Border — */
+      --border-default:  #D8D4CA;
+      --border-emphasis: #B8B4AA;
+
+      /* — Colors: Brand — */
+      --navy:        #1A56DB;
+      --navy-dark:   #1E3A8A;
+      --navy-deeper: #0F2460;
+      --teal:        #0891B2;
+      --teal-dark:   #0E7490;
+      --amber:       #D97706;
+      --amber-dark:  #B45309;
+
+      /* — Colors: Semantic — */
+      --success: #059669;
+      --warning: #D97706;
+      --error:   #DC2626;
+      --info:    #0891B2;
+
+      /* — Colors: Additional Brand Gradients — */
+      --gradient-navy: linear-gradient(135deg, var(--navy-deeper) 0%, var(--navy) 100%);
+      --gradient-teal: linear-gradient(135deg, var(--teal-dark) 0%, var(--teal) 100%);
+      --gradient-amber: linear-gradient(135deg, var(--amber-dark) 0%, var(--amber) 100%);
+      --gradient-hero: linear-gradient(135deg, #0F2460 0%, #1A56DB 50%, #0891B2 100%);
+
+      /* — Shadows — */
+      --shadow-xs:     0 1px 2px  rgba(28,28,46,.06);
+      --shadow-sm:     0 2px 8px  rgba(28,28,46,.08);
+      --shadow-md:     0 4px 16px rgba(28,28,46,.10);
+      --shadow-lg:     0 8px 32px rgba(28,28,46,.12);
+      --shadow-xl:     0 16px 48px rgba(28,28,46,.14);
+      --shadow-2xl:    0 24px 64px rgba(28,28,46,.16);
+      --shadow-inner:  inset 0 2px 4px rgba(28,28,46,.06);
+      --shadow-navy:   0 4px 16px rgba(26,86,219,.20);
+      --shadow-teal:   0 4px 16px rgba(8,145,178,.20);
+      --shadow-amber:  0 4px 16px rgba(217,119,6,.22);
+      --shadow-glow:   0 0 40px rgba(26,86,219,.3);
+
+      /* — Radius — */
+      --radius-xs:    6px;
+      --radius-sm:    10px;
+      --radius-md:    12px;
+      --radius-lg:    16px;
+      --radius-xl:    20px;
+      --radius-2xl:   28px;
+      --radius-3xl:   40px;
+      --radius-full:  9999px;
+
+      /* — Spacing — */
+      --space-1:   4px;
+      --space-2:   8px;
+      --space-3:   12px;
+      --space-4:   16px;
+      --space-5:   20px;
+      --space-6:   24px;
+      --space-7:   32px;
+      --space-8:   40px;
+      --space-9:   48px;
+      --space-10:  64px;
+      --space-11:  80px;
+      --space-12:  96px;
+      --space-13:  128px;
+      --space-14:  160px;
+      --space-15:  192px;
+
+      /* — Transitions — */
+      --transition-fast: 180ms cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-base: 250ms ease;
+      --transition-slow: 350ms cubic-bezier(0.4, 0, 0.6, 1);
+
+      /* — Typography — */
+      --font-family: 'Vazirmatn', system-ui, sans-serif;
+      --font-size-xs:   11px;
+      --font-size-sm:   12px;
+      --font-size-md:   13px;
+      --font-size-base: 14px;
+      --font-size-lg:   15px;
+      --font-size-xl:   16px;
+      --font-size-2xl:  18px;
+      --font-size-3xl:  20px;
+      --font-size-4xl:  24px;
+      --font-size-5xl:  28px;
+      --font-size-6xl:  40px;
+      --font-size-7xl:  48px;
+      --font-size-8xl:  64px;
+
+      /* — Line Heights — */
+      --leading-none: 1;
+      --leading-tight: 1.25;
+      --leading-snug: 1.375;
+      --leading-normal: 1.5;
+      --leading-relaxed: 1.625;
+      --leading-loose: 2;
+
+      /* — Font Weights — */
+      --font-weight-light: 300;
+      --font-weight-normal: 400;
+      --font-weight-medium: 500;
+      --font-weight-semibold: 600;
+      --font-weight-bold: 700;
+      --font-weight-extrabold: 800;
+
+      /* — Layout — */
+      --container-max: 1280px;
+      --container-pad-lg: 48px;
+      --container-pad-md: 24px;
+      --container-pad-sm: 16px;
+      --navbar-height: 72px;
+      --tabbar-height: 64px;
+
+      /* — Z-Index Scale — */
+      --z-dropdown: 100;
+      --z-sticky: 200;
+      --z-fixed: 300;
+      --z-modal-backdrop: 400;
+      --z-modal: 500;
+      --z-popover: 600;
+      --z-tooltip: 700;
+      --z-toast: 800;
+    }
+
+
+    /* ══════════════════════════════════════════
+       DESIGN SYSTEM PAGE SHELL
+    ══════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-family);
+      font-size: var(--font-size-xl);
+      line-height: 1.75;
+      color: var(--text-primary);
+      background: #F7F6F3;
+      direction: rtl;
+      text-align: right;
+    }
+
+    /* Sidebar + content layout */
+    .ds-shell { display: flex; min-height: 100vh; }
+
+    /* ─ Sidebar ─ */
+    .ds-sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      width: 260px;
+      flex-shrink: 0;
+      background: var(--navy-deeper);
+      color: white;
+      overflow-y: auto;
+      padding: 32px 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .ds-sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 24px 28px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      margin-bottom: 20px;
+    }
+
+    .ds-sidebar-logo svg { width: 36px; height: 36px; flex-shrink: 0; }
+
+    .ds-sidebar-logo-text {
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    .ds-sidebar-logo-text span {
+      display: block;
+      font-size: 10px;
+      font-weight: 400;
+      opacity: .5;
+      margin-top: 2px;
+    }
+
+    .ds-nav-group { margin-bottom: 8px; }
+
+    .ds-nav-group-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      opacity: .4;
+      padding: 8px 24px 4px;
+    }
+
+    .ds-nav-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 24px;
+      font-size: 13px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      transition: all var(--transition-fast);
+      border-right: 3px solid transparent;
+    }
+
+    .ds-nav-link:hover { color: white; background: rgba(255,255,255,0.06); }
+    .ds-nav-link.active { color: white; background: rgba(26,86,219,.3); border-right-color: var(--navy); }
+    .ds-nav-link svg { width: 16px; height: 16px; opacity: .8; flex-shrink: 0; }
+
+    /* ─ Main content ─ */
+    .ds-main {
+      flex: 1;
+      padding: 48px 56px;
+      overflow-x: hidden;
+      max-width: calc(100vw - 260px);
+    }
+
+    /* Section */
+    .ds-section { margin-bottom: 80px; }
+
+    .ds-section-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid var(--border-default);
+    }
+
+    .ds-section-desc {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 32px;
+      margin-top: 12px;
+    }
+
+    .ds-subsection { margin-bottom: 40px; }
+
+    .ds-subsection-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ds-subsection-title::before {
+      content: '';
+      display: inline-block;
+      width: 4px;
+      height: 14px;
+      background: var(--navy);
+      border-radius: 2px;
+    }
+
+    /* Row helpers */
+    .ds-row     { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin-bottom: 16px; }
+    .ds-grid-2  { display: grid; grid-template-columns: repeat(2,1fr); gap: 16px; }
+    .ds-grid-3  { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+    .ds-grid-4  { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
+    .ds-grid-6  { display: grid; grid-template-columns: repeat(6,1fr); gap: 12px; }
+
+    /* Token card */
+    .token-card {
+      background: white;
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      padding: 16px;
+    }
+
+    .token-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-tertiary);
+      margin-bottom: 6px;
+      font-family: 'Courier New', monospace;
+    }
+
+    .token-value {
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-family: 'Courier New', monospace;
+    }
+
+    /* Swatch */
+    .swatch {
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 1px solid var(--border-default);
+      background: white;
+    }
+
+    .swatch-color {
+      height: 72px;
+      width: 100%;
+    }
+
+    .swatch-info { padding: 10px 12px; }
+
+    .swatch-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .swatch-var {
+      font-size: 10px;
+      color: var(--text-tertiary);
+      font-family: 'Courier New', monospace;
+      margin-top: 2px;
+    }
+
+    .swatch-hex {
+      font-size: 10px;
+      color: var(--text-tertiary);
+      font-family: 'Courier New', monospace;
+    }
+
+    /* Radius demo */
+    .radius-demo {
+      background: white;
+      border: 1px solid var(--border-default);
+      padding: 16px;
+      border-radius: var(--radius-md);
+      text-align: center;
+    }
+
+    .radius-box {
+      width: 64px;
+      height: 48px;
+      background: var(--navy);
+      margin: 0 auto 10px;
+    }
+
+    /* Shadow demo */
+    .shadow-demo {
+      background: white;
+      border-radius: var(--radius-md);
+      padding: 16px;
+      text-align: center;
+    }
+
+    /* Spacing viz */
+    .space-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 6px 0;
+      border-bottom: 1px dashed var(--border-default);
+    }
+
+    .space-bar {
+      background: rgba(26,86,219,.2);
+      height: 20px;
+      border-radius: 3px;
+      border-right: 2px solid var(--navy);
+      flex-shrink: 0;
+    }
+
+    .space-label {
+      font-size: 11px;
+      font-family: 'Courier New', monospace;
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    /* Type scale */
+    .type-row {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border-default);
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+    }
+
+    .type-meta {
+      min-width: 180px;
+      flex-shrink: 0;
+      font-size: 11px;
+      font-family: 'Courier New', monospace;
+      color: var(--text-tertiary);
+    }
+
+    /* Component preview area */
+    .preview-box {
+      background: white;
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-xl);
+      padding: 32px;
+      margin-bottom: 8px;
+    }
+
+    .preview-box.dark {
+      background: var(--navy-deeper);
+    }
+
+    .preview-box.muted {
+      background: var(--bg-secondary);
+    }
+
+    /* Code snippet */
+    .code-block {
+      background: #1C1C2E;
+      color: #A8B5D3;
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      font-size: 12px;
+      font-family: 'Courier New', monospace;
+      line-height: 1.8;
+      overflow-x: auto;
+      margin-top: 8px;
+    }
+
+    .code-block .kw  { color: #7DD3FC; }
+    .code-block .str { color: #86EFAC; }
+    .code-block .com { color: #64748B; }
+    .code-block .var { color: #F9A8D4; }
+
+
+    /* ══════════════════════════════════════════
+       ACTUAL COMPONENTS  (copied 1:1 from source)
+    ══════════════════════════════════════════ */
+
+    /* — Buttons — */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      font-family: var(--font-family);
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      white-space: nowrap;
+      border-radius: var(--radius-md);
+      text-decoration: none;
+    }
+    .btn:hover   { transform: translateY(-1px); }
+    .btn:active  { transform: scale(0.98); }
+    .btn:disabled{ opacity: .4; pointer-events: none; }
+    .btn-lg { height: 50px; padding: 0 28px; font-size: 15px; border-radius: 14px; }
+    .btn-md { height: 42px; padding: 0 22px; font-size: 14px; border-radius: 12px; }
+    .btn-sm { height: 34px; padding: 0 16px; font-size: 12px; border-radius: 10px; }
+    .btn svg { width: 18px; height: 18px; flex-shrink: 0; }
+    .btn-solid-navy    { background: var(--navy);  color: white; box-shadow: var(--shadow-navy);  }
+    .btn-solid-navy:hover  { background: var(--navy-dark); }
+    .btn-solid-teal    { background: var(--teal);  color: white; box-shadow: var(--shadow-teal);  }
+    .btn-solid-teal:hover  { background: var(--teal-dark); }
+    .btn-solid-amber   { background: var(--amber); color: white; box-shadow: var(--shadow-amber); }
+    .btn-solid-amber:hover { background: var(--amber-dark); }
+    .btn-outlined-navy { background: transparent; border: 1.5px solid var(--navy); color: var(--navy); }
+    .btn-outlined-navy:hover { background: #EEF4FF; border-color: var(--navy-dark); }
+    .btn-ghost { background: transparent; color: var(--text-primary); }
+    .btn-ghost:hover  { background: var(--bg-secondary); color: var(--navy); }
+    .btn-full  { width: 100%; }
+
+    /* — Button Loading State — */
+    .btn.is-loading { position: relative; color: transparent; pointer-events: none; }
+    .btn.is-loading::after {
+      content: '';
+      position: absolute;
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: btn-spin 0.8s linear infinite;
+    }
+    @keyframes btn-spin { to { transform: rotate(360deg); } }
+
+    /* — Chips — */
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 16px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    .chip:hover { border-color: var(--navy); color: var(--navy); }
+    .chip.is-selected { background: var(--navy); border-color: var(--navy); color: white; }
+
+    /* — Badges (inline) — */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px 12px;
+      font-size: 11px;
+      font-weight: 500;
+      border-radius: var(--radius-full);
+    }
+    .badge-new         { background: #DBEAFE; color: #1E3A8A; }
+    .badge-bestseller  { background: var(--navy); color: white; }
+    .badge-discount    { background: #FEF3C7; color: #B45309; }
+    .badge-success     { background: rgba(5,150,105,.12); color: var(--success); }
+    .badge-error       { background: rgba(220,38,38,.10); color: var(--error); }
+
+    /* — Hero badge — */
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      background: rgba(8,145,178,.1);
+      color: var(--teal);
+      border-radius: var(--radius-full);
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .hero-badge svg { width: 16px; height: 16px; }
+
+    /* — Trust item — */
+    .trust-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .trust-icon {
+      width: 44px; height: 44px;
+      background: var(--bg-primary);
+      border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      border: 1px solid var(--border-default);
+    }
+    .trust-icon svg { width: 22px; height: 22px; color: var(--navy); }
+    .trust-text { font-size: 13px; font-weight: 500; color: var(--text-primary); }
+
+    /* — Category Card — */
+    .category-card {
+      background: var(--bg-secondary);
+      border: 2px solid transparent;
+      border-radius: var(--radius-xl);
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all var(--transition-base);
+      text-decoration: none;
+      display: block;
+    }
+    .category-card:hover { border-color: var(--teal); transform: scale(1.02); box-shadow: var(--shadow-md); }
+    .category-icon {
+      width: 56px; height: 56px;
+      background: var(--bg-primary);
+      border-radius: var(--radius-lg);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 16px;
+    }
+    .category-icon svg { width: 28px; height: 28px; color: var(--navy); }
+    .category-name  { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; }
+    .category-count { font-size: 12px; color: var(--text-tertiary); }
+
+    /* — Product Card — */
+    .product-card {
+      background: var(--bg-primary);
+      border: 0.5px solid var(--border-default);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      transition: all var(--transition-base);
+    }
+    .product-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+    .card-image {
+      position: relative;
+      height: 200px;
+      background: var(--bg-secondary);
+      border-radius: 16px 16px 0 0;
+      overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .card-image svg { width: 64px; height: 64px; color: var(--text-tertiary); opacity: .5; }
+    .card-badge {
+      position: absolute;
+      top: 12px;
+      padding: 4px 12px;
+      font-size: 11px;
+      font-weight: 500;
+      border-radius: var(--radius-full);
+      z-index: 1;
+    }
+    .card-wishlist {
+      position: absolute;
+      top: 12px; left: 12px;
+      width: 32px; height: 32px;
+      background: rgba(255,255,255,.8);
+      backdrop-filter: blur(4px);
+      border: none;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    .card-wishlist svg { width: 16px; height: 16px; color: var(--text-secondary); }
+    .card-wishlist:hover { background: white; transform: scale(1.1); }
+    .card-wishlist.is-active svg { color: var(--error); fill: var(--error); }
+    .card-content { padding: 16px; }
+    .card-category { font-size: 11px; font-weight: 500; color: var(--teal); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 8px; }
+    .card-title { font-size: 15px; font-weight: 600; color: var(--text-primary); line-height: 1.5; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .card-specs { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; }
+    .card-spec { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--text-tertiary); }
+    .card-spec svg { width: 12px; height: 12px; }
+    .card-rating { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+    .card-stars { display: flex; gap: 2px; }
+    .card-stars svg { width: 14px; height: 14px; }
+    .card-stars svg.filled { color: var(--amber); fill: var(--amber); }
+    .card-stars svg.empty  { color: var(--border-emphasis); }
+    .card-review-count { font-size: 12px; color: var(--text-tertiary); }
+    .card-price { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+    .card-price-current  { font-size: 20px; font-weight: 700; color: var(--navy); }
+    .card-price-old      { font-size: 14px; color: var(--text-tertiary); text-decoration: line-through; }
+    .card-price-discount { font-size: 11px; font-weight: 500; color: var(--success); background: rgba(5,150,105,.1); padding: 2px 8px; border-radius: var(--radius-xs); }
+    .card-action { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 8px; }
+    .card-action .btn { width: 100%; }
+
+    /* — Feature Card — */
+    .feature-card {
+      background: var(--bg-primary);
+      border-radius: var(--radius-xl);
+      padding: 32px;
+      text-align: center;
+      transition: all var(--transition-base);
+      border: 1px solid var(--border-default);
+    }
+    .feature-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+    .feature-icon {
+      width: 64px; height: 64px;
+      background: rgba(26,86,219,.1);
+      border-radius: var(--radius-lg);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+    }
+    .feature-icon svg { width: 32px; height: 32px; color: var(--navy); }
+    .feature-title { font-size: 18px; font-weight: 600; color: var(--text-primary); margin-bottom: 12px; }
+    .feature-description { font-size: 14px; color: var(--text-secondary); line-height: 1.7; }
+
+    /* — Testimonial Card — */
+    .testimonial-card {
+      background: var(--bg-secondary);
+      border-radius: var(--radius-xl);
+      padding: 24px;
+      position: relative;
+    }
+    .testimonial-quote {
+      position: absolute; top: 20px; left: 20px;
+      width: 40px; height: 40px;
+      color: var(--navy); opacity: .2;
+    }
+    .testimonial-text { font-size: 14px; color: var(--text-secondary); line-height: 1.8; margin-bottom: 20px; padding-top: 24px; }
+    .testimonial-author { display: flex; align-items: center; gap: 12px; }
+    .testimonial-avatar {
+      width: 44px; height: 44px;
+      background: var(--navy);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-size: 16px; font-weight: 600;
+    }
+    .testimonial-name     { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+    .testimonial-location { font-size: 12px; color: var(--text-tertiary); }
+
+    /* — Input / Form — */
+    .input-field {
+      width: 100%;
+      height: 44px;
+      padding: 0 16px;
+      background: var(--bg-secondary);
+      border: 1.5px solid var(--border-default);
+      border-radius: var(--radius-md);
+      font-family: var(--font-family);
+      font-size: 14px;
+      color: var(--text-primary);
+      transition: all var(--transition-fast);
+      outline: none;
+    }
+    .input-field:focus { border-color: var(--navy); background: white; box-shadow: 0 0 0 3px rgba(26,86,219,.1); }
+    .input-field::placeholder { color: var(--text-tertiary); }
+    .input-field:disabled { opacity: 0.6; cursor: not-allowed; background: var(--bg-tertiary); }
+    .input-field.has-error { border-color: var(--error); box-shadow: 0 0 0 3px rgba(220,38,38,.1); }
+
+    .input-search {
+      width: 100%;
+      height: 40px;
+      padding: 0 40px 0 16px;
+      border-radius: var(--radius-full);
+      background: var(--bg-secondary);
+      border: none;
+      font-family: inherit;
+      font-size: 14px;
+      outline: none;
+      transition: all var(--transition-fast);
+    }
+    .input-search:focus { background: white; box-shadow: 0 0 0 2px var(--navy); }
+
+    /* — Checkbox & Toggle — */
+    .checkbox-wrapper { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+    .checkbox-custom {
+      width: 20px; height: 20px;
+      border: 1.5px solid var(--border-default);
+      border-radius: var(--radius-xs);
+      display: flex; align-items: center; justify-content: center;
+      transition: all var(--transition-fast);
+      flex-shrink: 0;
+    }
+    .checkbox-wrapper input { display: none; }
+    .checkbox-wrapper input:checked + .checkbox-custom {
+      background: var(--navy);
+      border-color: var(--navy);
+    }
+    .checkbox-wrapper input:checked + .checkbox-custom::after {
+      content: '';
+      width: 10px; height: 6px;
+      border-left: 2px solid white;
+      border-bottom: 2px solid white;
+      transform: translateY(-1px) rotate(-15deg);
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 44px; height: 24px;
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-full);
+      transition: all var(--transition-fast);
+      cursor: pointer;
+    }
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 2px; right: 22px;
+      width: 20px; height: 20px;
+      background: white;
+      border-radius: 50%;
+      box-shadow: var(--shadow-sm);
+      transition: all var(--transition-fast);
+    }
+    .toggle-switch.is-active { background: var(--navy); }
+    .toggle-switch.is-active::after {
+      right: 2px;
+      transform: translateX(0);
+    }
+
+    /* — Navbar Action Button — */
+    .navbar-action-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 44px; height: 44px;
+      background: none; border: none;
+      border-radius: var(--radius-md);
+      color: var(--text-secondary);
+      cursor: pointer; position: relative;
+      transition: all var(--transition-fast);
+    }
+    .navbar-action-btn:hover { background: var(--bg-secondary); color: var(--navy); }
+    .navbar-action-btn svg   { width: 22px; height: 22px; }
+    .navbar-action-btn .badge-count {
+      position: absolute; top: 4px; left: 4px;
+      min-width: 18px; height: 18px;
+      background: var(--navy); color: white;
+      font-size: 10px; font-weight: 600;
+      border-radius: var(--radius-full);
+      display: flex; align-items: center; justify-content: center;
+      padding: 0 5px;
+    }
+
+    /* — Nav Link — */
+    .nav-link {
+      font-size: 14px; font-weight: 500;
+      color: var(--text-secondary);
+      text-decoration: none;
+      padding: 8px 0;
+      position: relative;
+      transition: color var(--transition-fast);
+    }
+    .nav-link::after {
+      content: ''; position: absolute; bottom: 0; right: 0;
+      width: 0; height: 2px;
+      background: var(--navy); border-radius: 1px;
+      transition: width var(--transition-fast);
+    }
+    .nav-link:hover, .nav-link.is-active { color: var(--navy); }
+    .nav-link:hover::after, .nav-link.is-active::after { width: 100%; }
+
+    /* — Tab Bar Item — */
+    .tab-bar-item-demo {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 4px;
+      padding: 10px 16px;
+      text-decoration: none;
+      color: var(--text-tertiary);
+      transition: color var(--transition-fast);
+      border-radius: var(--radius-md);
+    }
+    .tab-bar-item-demo:hover, .tab-bar-item-demo.is-active { color: var(--teal); }
+    .tab-bar-item-demo svg  { width: 24px; height: 24px; }
+    .tab-bar-item-demo span { font-size: 10px; font-weight: 500; }
+
+    /* — Footer Social — */
+    .footer-social-link {
+      width: 40px; height: 40px;
+      background: rgba(255,255,255,.1);
+      border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center;
+      color: white;
+      transition: background var(--transition-fast);
+      text-decoration: none;
+    }
+    .footer-social-link:hover { background: var(--navy); }
+    .footer-social-link svg { width: 20px; height: 20px; }
+
+    /* — Section Header — */
+    .section-header { display: flex; justify-content: space-between; align-items: center; }
+    .section-title  { font-size: 24px; font-weight: 700; color: var(--text-primary); }
+    .section-link   { font-size: 14px; font-weight: 500; color: var(--navy); display: flex; align-items: center; gap: 4px; text-decoration: none; }
+    .section-link svg { width: 16px; height: 16px; }
+
+    /* — Stats — */
+    .stat-block { text-align: center; }
+    .stat-value { font-size: 28px; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+    .stat-label { font-size: 12px; color: var(--text-tertiary); }
+
+    /* ═══ DS Page specific helpers ═══ */
+    .ds-tag {
+      display: inline-block;
+      background: rgba(26,86,219,.08);
+      color: var(--navy);
+      font-size: 11px;
+      font-family: 'Courier New', monospace;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-left: 6px;
+    }
+
+    .ds-divider { height: 1px; background: var(--border-default); margin: 32px 0; }
+
+    .page-header {
+      background: linear-gradient(135deg, var(--navy-deeper) 0%, var(--navy) 100%);
+      padding: 48px 56px;
+      color: white;
+      margin: -48px -56px 56px;
+    }
+
+    .page-header h1 { font-size: 32px; font-weight: 700; margin-bottom: 8px; }
+    .page-header p  { font-size: 15px; opacity: .75; }
+    .page-header-meta {
+      display: flex; gap: 24px; margin-top: 24px;
+    }
+    .page-header-meta span {
+      font-size: 12px; opacity: .6;
+      display: flex; align-items: center; gap: 6px;
+    }
+
+    /* — Product Detail Page Styles — */
+    .gallery-thumb {
+      transition: all var(--transition-fast);
+      cursor: pointer;
+    }
+    .gallery-thumb:hover { border-color: var(--teal); }
+    .gallery-thumb.is-active { border-color: var(--navy); }
+
+    .color-swatch {
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    .color-swatch:hover { transform: scale(1.1); }
+    .color-swatch.is-active { border-color: var(--navy) !important; transform: scale(1.1); }
+
+    .product-tab {
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    .product-tab:hover { color: var(--navy); }
+    .product-tab.is-active { color: var(--navy); border-bottom-color: var(--navy); }
+
+    .check-icon {
+      width: 16px; height: 16px;
+      color: var(--success);
+      flex-shrink: 0;
+    }
+
+    .filled { color: #F59E0B; }
+    .empty { color: var(--border-default); }
+
+  </style>
+</head>
+<body>
+<div class="ds-shell">
+
+  <!-- ═══════════ SIDEBAR ═══════════ -->
+  <aside class="ds-sidebar">
+    <div class="ds-sidebar-logo">
+      <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="40" height="40" rx="10" fill="#1A56DB"/>
+        <path d="M20 8L28 14V26L20 32L12 26V14L20 8Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="20" cy="20" r="4" fill="white"/>
+      </svg>
+      <div class="ds-sidebar-logo-text">
+        AFI Design System
+        <span>آتی فرزام ایرانیان</span>
+      </div>
+    </div>
+
+    <div class="ds-nav-group">
+      <div class="ds-nav-group-label">پایه</div>
+      <a href="#tokens"     class="ds-nav-link active">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z"/><path d="M6 6h.008v.008H6V6z"/></svg>
+        توکن‌های طراحی
+      </a>
+      <a href="#colors"     class="ds-nav-link">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M4.098 19.902a3.75 3.75 0 005.304 0l6.401-6.402M6.75 21A3.75 3.75 0 013 17.25V4.125C3 3.089 3.84 2.25 4.875 2.25h1.372c.516 0 1.01.217 1.36.591l4.786 5.181c.34.367.551.86.551 1.375v2.25m-9 1.5l2.25-2.25M12.75 12l4.5-4.5m1.5 6l-1.06 1.06a1.5 1.5 0 01-2.122 0l-1.5-1.5a1.5 1.5 0 010-2.122l1.5-1.5A1.5 1.5 0 0116.94 10.5H18a1.5 1.5 0 011.5 1.5V13.5a1.5 1.5 0 01-1.5 1.5h-1.06z"/></svg>
+        رنگ‌ها
+      </a>
+      <a href="#typography"  class="ds-nav-link">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/></svg>
+        تایپوگرافی
+      </a>
+      <a href="#spacing"    class="ds-nav-link">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15"/></svg>
+        فاصله‌گذاری
+      </a>
+      <a href="#radius"     class="ds-nav-link">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M16.5 6v.75a3 3 0 01-3 3H9a3 3 0 01-3-3V6m6 6v.75m0 0v.75m0-.75h.375a1.125 1.125 0 010 2.25H15M4.5 19.5h15"/></svg>
+        شعاع گوشه
+      </a>
+      <a href="#shadows"    class="ds-nav-link">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/></svg>
+        سایه‌ها
+      </a>
+    </div>
+
+    <div class="ds-nav-group">
+      <div class="ds-nav-group-label">کامپوننت‌ها</div>
+      <a href="#buttons"    class="ds-nav-link">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672zm-7.518-.267A8.25 8.25 0 1120.25 10.5M8.288 14.212A5.25 5.25 0 1117.25 10.5"/></svg>
+        دکمه‌ها
+      </a>
+      <a href="#chips"      class="ds-nav-link">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        چیپ‌ها و بج‌ها
+      </a>
+      <a href="#inputs"     class="ds-nav-link">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125"/></svg>
+        ورودی‌ها
+      </a>
+      <a href="#forms"      class="ds-nav-link">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/><path d="M9 7.5l2.25 2.25L15 6"/></svg>
+        چک‌باکس و Toggle
+      </a>
+      <a href="#cards"      class="ds-nav-link">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z"/></svg>
+        کارت‌ها
+      </a>
+      <a href="#product-detail" class="ds-nav-link">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z"/></svg>
+        صفحه محصول
+      </a>
+      <a href="#modals"     class="ds-nav-link">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/></svg>
+        مودال و Toast
+      </a>
+      <a href="#navigation" class="ds-nav-link">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/></svg>
+        ناوبری
+      </a>
+      <a href="#sections"   class="ds-nav-link">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M6 6.878V6a2.25 2.25 0 012.25-2.25h7.5A2.25 2.25 0 0118 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 004.5 9v.878m13.5-3A2.25 2.25 0 0119.5 9v.878m0 0a2.246 2.246 0 00-.75-.128H5.25c-.263 0-.515.045-.75.128m15 0A2.25 2.25 0 0121 12v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6c0-.98.626-1.813 1.5-2.122"/></svg>
+        سکشن‌ها
+      </a>
+    </div>
+
+    <div class="ds-nav-group">
+      <div class="ds-nav-group-label">لایه‌بندی</div>
+      <a href="#layout"     class="ds-nav-link">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"/></svg>
+        گرید و کانتینر
+      </a>
+      <a href="#responsive"  class="ds-nav-link">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3"/></svg>
+        ریسپانسیو
+      </a>
+    </div>
+  </aside>
+
+
+  <!-- ═══════════ MAIN ═══════════ -->
+  <main class="ds-main">
+
+    <div class="page-header">
+      <h1>AFI Design System</h1>
+      <p>سیستم طراحی کامل آتی فرزام ایرانیان — توکن‌ها، کامپوننت‌ها و الگوهای تعاملی</p>
+      <div class="page-header-meta">
+        <span>
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          نسخه ۱.۰.۰
+        </span>
+        <span>
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4.098 19.902a3.75 3.75 0 005.304 0l6.401-6.402M6.75 21A3.75 3.75 0 013 17.25V4.125C3 3.089 3.84 2.25 4.875 2.25h1.372c.516 0 1.01.217 1.36.591l4.786 5.181c.34.367.551.86.551 1.375v2.25"/></svg>
+          فونت: Vazirmatn
+        </span>
+        <span>
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
+          RTL / فارسی
+        </span>
+      </div>
+    </div>
+
+
+    <!-- ════════════════════════════
+         SECTION: DESIGN TOKENS
+    ════════════════════════════ -->
+    <section class="ds-section" id="tokens">
+      <h2 class="ds-section-title">توکن‌های طراحی</h2>
+      <p class="ds-section-desc">تمام مقادیر پایه سیستم از طریق CSS Custom Properties در <code>:root</code> تعریف شده‌اند. این توکن‌ها در تمام کامپوننت‌ها استفاده می‌شوند.</p>
+
+      <div class="code-block">
+<span class="com">/* همه توکن‌ها در :root تعریف می‌شوند */</span>
+<span class="kw">:root</span> {
+  <span class="com">/* رنگ‌های پس‌زمینه */</span>
+  <span class="var">--bg-primary</span>:   <span class="str">#FAFAF7</span>;
+  <span class="var">--bg-secondary</span>: <span class="str">#F0EDE6</span>;
+  <span class="var">--bg-tertiary</span>:  <span class="str">#E5E1D8</span>;
+
+  <span class="com">/* برند */</span>
+  <span class="var">--navy</span>:        <span class="str">#1A56DB</span>;
+  <span class="var">--teal</span>:        <span class="str">#0891B2</span>;
+  <span class="var">--amber</span>:       <span class="str">#D97706</span>;
+
+  <span class="com">/* انیمیشن */</span>
+  <span class="var">--transition-fast</span>: <span class="str">180ms cubic-bezier(0.4, 0, 0.2, 1)</span>;
+  <span class="var">--transition-base</span>: <span class="str">250ms ease</span>;
+}</div>
+    </section>
+
+
+    <!-- ════════════════════════════
+         SECTION: COLORS
+    ════════════════════════════ -->
+    <section class="ds-section" id="colors">
+      <h2 class="ds-section-title">رنگ‌ها</h2>
+      <p class="ds-section-desc">پالت رنگی AFI بر پایه سه رنگ اصلی (Navy، Teal، Amber) با سطوح خنثی گرم و رنگ‌های معنایی بنا شده است.</p>
+
+      <!-- Backgrounds -->
+      <div class="ds-subsection">
+        <div class="ds-subsection-title">پس‌زمینه‌ها</div>
+        <div class="ds-grid-3">
+          <div class="swatch">
+            <div class="swatch-color" style="background:#FAFAF7; border-bottom:1px solid #e0ddd4;"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">bg-primary</div>
+              <div class="swatch-var">--bg-primary</div>
+              <div class="swatch-hex">#FAFAF7</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-color" style="background:#F0EDE6;"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">bg-secondary</div>
+              <div class="swatch-var">--bg-secondary</div>
+              <div class="swatch-hex">#F0EDE6</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-color" style="background:#E5E1D8;"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">bg-tertiary</div>
+              <div class="swatch-var">--bg-tertiary</div>
+              <div class="swatch-hex">#E5E1D8</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Text -->
+      <div class="ds-subsection">
+        <div class="ds-subsection-title">متن</div>
+        <div class="ds-grid-3">
+          <div class="swatch">
+            <div class="swatch-color" style="background:#1C1C2E;"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">text-primary</div>
+              <div class="swatch-var">--text-primary</div>
+              <div class="swatch-hex">#1C1C2E</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-color" style="background:#4A4A6A;"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">text-secondary</div>
+              <div class="swatch-var">--text-secondary</div>
+              <div class="swatch-hex">#4A4A6A</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-color" style="background:#8A8AA8;"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">text-tertiary</div>
+              <div class="swatch-var">--text-tertiary</div>
+              <div class="swatch-hex">#8A8AA8</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Brand -->
+      <div class="ds-subsection">
+        <div class="ds-subsection-title">رنگ‌های برند</div>
+        <div class="ds-grid-3">
+          <div class="swatch">
+            <div class="swatch-color" style="background:#1A56DB;"></div>
+            <div class="swatch-info"><div class="swatch-name">navy</div><div class="swatch-var">--navy</div><div class="swatch-hex">#1A56DB</div></div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-color" style="background:#1E3A8A;"></div>
+            <div class="swatch-info"><div class="swatch-name">navy-dark</div><div class="swatch-var">--navy-dark</div><div class="swatch-hex">#1E3A8A</div></div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-color" style="background:#0F2460;"></div>
+            <div class="swatch-info"><div class="swatch-name">navy-deeper</div><div class="swatch-var">--navy-deeper</div><div class="swatch-hex">#0F2460</div></div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-color" style="background:#0891B2;"></div>
+            <div class="swatch-info"><div class="swatch-name">teal</div><div class="swatch-var">--teal</div><div class="swatch-hex">#0891B2</div></div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-color" style="background:#0E7490;"></div>
+            <div class="swatch-info"><div class="swatch-name">teal-dark</div><div class="swatch-var">--teal-dark</div><div class="swatch-hex">#0E7490</div></div>
+          </div>
+          <div class="swatch" style="grid-column: span 1;"></div>
+          <div class="swatch">
+            <div class="swatch-color" style="background:#D97706;"></div>
+            <div class="swatch-info"><div class="swatch-name">amber</div><div class="swatch-var">--amber</div><div class="swatch-hex">#D97706</div></div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-color" style="background:#B45309;"></div>
+            <div class="swatch-info"><div class="swatch-name">amber-dark</div><div class="swatch-var">--amber-dark</div><div class="swatch-hex">#B45309</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Semantic -->
+      <div class="ds-subsection">
+        <div class="ds-subsection-title">رنگ‌های معنایی</div>
+        <div class="ds-grid-4">
+          <div class="swatch">
+            <div class="swatch-color" style="background:#059669;"></div>
+            <div class="swatch-info"><div class="swatch-name">success</div><div class="swatch-var">--success</div><div class="swatch-hex">#059669</div></div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-color" style="background:#D97706;"></div>
+            <div class="swatch-info"><div class="swatch-name">warning</div><div class="swatch-var">--warning</div><div class="swatch-hex">#D97706</div></div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-color" style="background:#DC2626;"></div>
+            <div class="swatch-info"><div class="swatch-name">error</div><div class="swatch-var">--error</div><div class="swatch-hex">#DC2626</div></div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-color" style="background:#0891B2;"></div>
+            <div class="swatch-info"><div class="swatch-name">info</div><div class="swatch-var">--info</div><div class="swatch-hex">#0891B2</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Borders -->
+      <div class="ds-subsection">
+        <div class="ds-subsection-title">بوردر</div>
+        <div class="ds-grid-3">
+          <div class="swatch">
+            <div class="swatch-color" style="background:#D8D4CA;"></div>
+            <div class="swatch-info"><div class="swatch-name">border-default</div><div class="swatch-var">--border-default</div><div class="swatch-hex">#D8D4CA</div></div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-color" style="background:#B8B4AA;"></div>
+            <div class="swatch-info"><div class="swatch-name">border-emphasis</div><div class="swatch-var">--border-emphasis</div><div class="swatch-hex">#B8B4AA</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ════════════════════════════
+         SECTION: TYPOGRAPHY
+    ════════════════════════════ -->
+    <section class="ds-section" id="typography">
+      <h2 class="ds-section-title">تایپوگرافی</h2>
+      <p class="ds-section-desc">فونت اصلی Vazirmatn است. پایه سایز ۱۶px با line-height 1.75 و direction RTL.</p>
+
+      <div class="ds-subsection">
+        <div class="ds-subsection-title">مقیاس تایپوگرافی</div>
+        <div style="background:white; border:1px solid var(--border-default); border-radius:var(--radius-lg); overflow:hidden;">
+          <div class="type-row" style="padding: 12px 20px;">
+            <div class="type-meta">40px / font-size-6xl<br>font-weight: 700</div>
+            <div style="font-size:40px; font-weight:700; color:var(--navy-deeper);">عنوان اصلی Hero</div>
+          </div>
+          <div class="type-row" style="padding: 12px 20px;">
+            <div class="type-meta">28px / font-size-5xl<br>font-weight: 700</div>
+            <div style="font-size:28px; font-weight:700; color:var(--text-primary);">آمار و ارقام Hero</div>
+          </div>
+          <div class="type-row" style="padding: 12px 20px;">
+            <div class="type-meta">24px / font-size-4xl<br>font-weight: 700</div>
+            <div style="font-size:24px; font-weight:700; color:var(--text-primary);">عنوان سکشن Section Title</div>
+          </div>
+          <div class="type-row" style="padding: 12px 20px;">
+            <div class="type-meta">20px / font-size-3xl<br>font-weight: 700</div>
+            <div style="font-size:20px; font-weight:700; color:var(--navy);">قیمت محصول Card Price</div>
+          </div>
+          <div class="type-row" style="padding: 12px 20px;">
+            <div class="type-meta">18px / font-size-2xl<br>font-weight: 700</div>
+            <div style="font-size:18px; font-weight:700; color:var(--text-primary);">لوگو ناوبار / عنوان فیچر</div>
+          </div>
+          <div class="type-row" style="padding: 12px 20px;">
+            <div class="type-meta">16px / font-size-xl<br>font-weight: 400</div>
+            <div style="font-size:16px; color:var(--text-secondary);">متن توضیح Hero — فناوری ۴G، نصب رایگان و گارانتی یک‌ساله</div>
+          </div>
+          <div class="type-row" style="padding: 12px 20px;">
+            <div class="type-meta">15px / font-size-lg<br>font-weight: 600 (btn-lg)</div>
+            <div style="font-size:15px; font-weight:600; color:var(--text-primary);">دکمه بزرگ / عنوان کارت</div>
+          </div>
+          <div class="type-row" style="padding: 12px 20px;">
+            <div class="type-meta">14px / font-size-base<br>font-weight: 400/500/600</div>
+            <div style="font-size:14px; color:var(--text-secondary);">متن پیش‌فرض ناوبار، توضیحات، لینک‌ها</div>
+          </div>
+          <div class="type-row" style="padding: 12px 20px;">
+            <div class="type-meta">13px / font-size-md<br>font-weight: 500</div>
+            <div style="font-size:13px; font-weight:500; color:var(--text-secondary);">Hero Badge، چیپ‌ها، Trust Bar</div>
+          </div>
+          <div class="type-row" style="padding: 12px 20px;">
+            <div class="type-meta">12px / font-size-sm<br>font-weight: 400/600</div>
+            <div style="font-size:12px; color:var(--text-tertiary);">تعداد محصولات، label آمار، متا‌داده کارت</div>
+          </div>
+          <div class="type-row" style="padding: 12px 20px; border-bottom: none;">
+            <div class="type-meta">11px / font-size-xs<br>font-weight: 500/600</div>
+            <div style="font-size:11px; font-weight:500; color:var(--teal); text-transform:uppercase; letter-spacing:.04em;">CARD CATEGORY — بج‌های inline</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ════════════════════════════
+         SECTION: SPACING
+    ════════════════════════════ -->
+    <section class="ds-section" id="spacing">
+      <h2 class="ds-section-title">فاصله‌گذاری</h2>
+      <p class="ds-section-desc">سیستم spacing بر پایه ضرایب ۴px طراحی شده است. ۱۳ سطح فاصله از ۴ تا ۱۲۸ پیکسل.</p>
+      <div style="background:white; border:1px solid var(--border-default); border-radius:var(--radius-lg); padding:24px;">
+        <div class="space-row"><div class="space-bar" style="width:4px;"></div><div class="space-label">--space-1 &nbsp;→ 4px</div></div>
+        <div class="space-row"><div class="space-bar" style="width:8px;"></div><div class="space-label">--space-2 &nbsp;→ 8px</div></div>
+        <div class="space-row"><div class="space-bar" style="width:12px;"></div><div class="space-label">--space-3 &nbsp;→ 12px</div></div>
+        <div class="space-row"><div class="space-bar" style="width:16px;"></div><div class="space-label">--space-4 &nbsp;→ 16px</div></div>
+        <div class="space-row"><div class="space-bar" style="width:20px;"></div><div class="space-label">--space-5 &nbsp;→ 20px</div></div>
+        <div class="space-row"><div class="space-bar" style="width:24px;"></div><div class="space-label">--space-6 &nbsp;→ 24px</div></div>
+        <div class="space-row"><div class="space-bar" style="width:32px;"></div><div class="space-label">--space-7 &nbsp;→ 32px</div></div>
+        <div class="space-row"><div class="space-bar" style="width:40px;"></div><div class="space-label">--space-8 &nbsp;→ 40px</div></div>
+        <div class="space-row"><div class="space-bar" style="width:48px;"></div><div class="space-label">--space-9 &nbsp;→ 48px</div></div>
+        <div class="space-row"><div class="space-bar" style="width:64px;"></div><div class="space-label">--space-10 → 64px</div></div>
+        <div class="space-row"><div class="space-bar" style="width:80px;"></div><div class="space-label">--space-11 → 80px</div></div>
+        <div class="space-row"><div class="space-bar" style="width:96px;"></div><div class="space-label">--space-12 → 96px &nbsp;← section padding</div></div>
+        <div class="space-row" style="border-bottom:none;"><div class="space-bar" style="width:128px;"></div><div class="space-label">--space-13 → 128px</div></div>
+      </div>
+    </section>
+
+
+    <!-- ════════════════════════════
+         SECTION: BORDER RADIUS
+    ════════════════════════════ -->
+    <section class="ds-section" id="radius">
+      <h2 class="ds-section-title">شعاع گوشه</h2>
+      <p class="ds-section-desc">۷ سطح شعاع از تیز (xs) تا کاملاً گرد (full).</p>
+      <div class="ds-grid-4">
+        <div class="radius-demo"><div class="radius-box" style="border-radius:6px;"></div><div class="token-label">--radius-xs</div><div class="token-value">6px · badge, discount pill</div></div>
+        <div class="radius-demo"><div class="radius-box" style="border-radius:10px;"></div><div class="token-label">--radius-sm</div><div class="token-value">10px · btn-sm</div></div>
+        <div class="radius-demo"><div class="radius-box" style="border-radius:12px;"></div><div class="token-label">--radius-md</div><div class="token-value">12px · btn-md، action buttons</div></div>
+        <div class="radius-demo"><div class="radius-box" style="border-radius:16px;"></div><div class="token-label">--radius-lg</div><div class="token-value">16px · card-image corner، icon bg</div></div>
+        <div class="radius-demo"><div class="radius-box" style="border-radius:20px;"></div><div class="token-label">--radius-xl</div><div class="token-value">20px · product card، category card</div></div>
+        <div class="radius-demo"><div class="radius-box" style="border-radius:28px;"></div><div class="token-label">--radius-2xl</div><div class="token-value">28px · modal، large containers</div></div>
+        <div class="radius-demo"><div class="radius-box" style="border-radius:9999px; width:48px; height:48px; margin:0 auto 10px;"></div><div class="token-label">--radius-full</div><div class="token-value">9999px · badge، chip، pill، search</div></div>
+      </div>
+    </section>
+
+
+    <!-- ════════════════════════════
+         SECTION: SHADOWS
+    ════════════════════════════ -->
+    <section class="ds-section" id="shadows">
+      <h2 class="ds-section-title">سایه‌ها</h2>
+      <p class="ds-section-desc">دو دسته سایه: خنثی (بر پایه --text-primary) و رنگی برای دکمه‌های solid.</p>
+      <div class="ds-grid-3">
+        <div class="shadow-demo" style="box-shadow:0 1px 2px rgba(28,28,46,.06); margin-bottom:16px;"><div class="token-label">--shadow-xs</div><div class="token-value">1px 2px | input hover baseline</div></div>
+        <div class="shadow-demo" style="box-shadow:0 2px 8px rgba(28,28,46,.08);"><div class="token-label">--shadow-sm</div><div class="token-value">2px 8px | card default</div></div>
+        <div class="shadow-demo" style="box-shadow:0 4px 16px rgba(28,28,46,.10);"><div class="token-label">--shadow-md</div><div class="token-value">4px 16px | card hover</div></div>
+        <div class="shadow-demo" style="box-shadow:0 8px 32px rgba(28,28,46,.12);"><div class="token-label">--shadow-lg</div><div class="token-value">8px 32px | feature hover</div></div>
+        <div class="shadow-demo" style="box-shadow:0 16px 48px rgba(28,28,46,.14);"><div class="token-label">--shadow-xl</div><div class="token-value">16px 48px | modal، dropdown</div></div>
+      </div>
+      <div class="ds-grid-3" style="margin-top:16px;">
+        <div class="shadow-demo" style="box-shadow:0 4px 16px rgba(26,86,219,.20);"><div class="token-label">--shadow-navy</div><div class="token-value">btn-solid-navy</div></div>
+        <div class="shadow-demo" style="box-shadow:0 4px 16px rgba(8,145,178,.20);"><div class="token-label">--shadow-teal</div><div class="token-value">btn-solid-teal</div></div>
+        <div class="shadow-demo" style="box-shadow:0 4px 16px rgba(217,119,6,.22);"><div class="token-label">--shadow-amber</div><div class="token-value">btn-solid-amber</div></div>
+      </div>
+    </section>
+
+
+    <!-- ════════════════════════════
+         SECTION: BUTTONS
+    ════════════════════════════ -->
+    <section class="ds-section" id="buttons">
+      <h2 class="ds-section-title">دکمه‌ها</h2>
+      <p class="ds-section-desc">کلاس پایه <code>.btn</code> با ترکیب کلاس‌های size و variant. hover: translateY(-1px)، active: scale(0.98).</p>
+
+      <div class="ds-subsection">
+        <div class="ds-subsection-title">واریانت‌ها — اندازه md</div>
+        <div class="preview-box">
+          <div class="ds-row">
+            <button class="btn btn-md btn-solid-navy">دکمه Navy</button>
+            <button class="btn btn-md btn-solid-teal">دکمه Teal</button>
+            <button class="btn btn-md btn-solid-amber">دکمه Amber</button>
+            <button class="btn btn-md btn-outlined-navy">دکمه Outlined</button>
+            <button class="btn btn-md btn-ghost">دکمه Ghost</button>
+            <button class="btn btn-md btn-solid-navy" disabled>غیرفعال</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="ds-subsection">
+        <div class="ds-subsection-title">اندازه‌ها — btn-solid-navy</div>
+        <div class="preview-box">
+          <div class="ds-row" style="align-items:flex-end;">
+            <button class="btn btn-lg btn-solid-navy">بزرگ · lg · 50px</button>
+            <button class="btn btn-md btn-solid-navy">متوسط · md · 42px</button>
+            <button class="btn btn-sm btn-solid-navy">کوچک · sm · 34px</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="ds-subsection">
+        <div class="ds-subsection-title">دکمه با آیکون</div>
+        <div class="preview-box">
+          <div class="ds-row">
+            <button class="btn btn-lg btn-solid-navy">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"/></svg>
+              افزودن به سبد
+            </button>
+            <button class="btn btn-lg btn-outlined-navy">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.556 4.03-8 9-8s9 3.444 9 8z"/></svg>
+              مشاوره رایگان
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="code-block">
+<span class="com">/* ساختار کلاس: .btn + [size] + [variant] */</span>
+&lt;<span class="kw">button</span> class=<span class="str">"btn btn-lg btn-solid-navy"</span>&gt;متن دکمه&lt;/<span class="kw">button</span>&gt;
+&lt;<span class="kw">button</span> class=<span class="str">"btn btn-md btn-outlined-navy"</span>&gt;متن دکمه&lt;/<span class="kw">button</span>&gt;
+&lt;<span class="kw">button</span> class=<span class="str">"btn btn-sm btn-ghost"</span>&gt;متن دکمه&lt;/<span class="kw">button</span>&gt;
+
+<span class="com">/* Sizes: btn-lg (50px) | btn-md (42px) | btn-sm (34px)
+   Variants: btn-solid-navy | btn-solid-teal | btn-solid-amber
+             btn-outlined-navy | btn-ghost
+   Modifier: btn-full (width:100%) */</span></div>
+    </section>
+
+
+    <!-- ════════════════════════════
+         SECTION: CHIPS & BADGES
+    ════════════════════════════ -->
+    <section class="ds-section" id="chips">
+      <h2 class="ds-section-title">چیپ‌ها و بج‌ها</h2>
+
+      <div class="ds-subsection">
+        <div class="ds-subsection-title">فیلتر چیپ‌ها</div>
+        <div class="preview-box">
+          <div class="ds-row">
+            <button class="chip is-selected">همه</button>
+            <button class="chip">ردیاب GPS</button>
+            <button class="chip">دزدگیر</button>
+            <button class="chip">قفل هوشمند</button>
+            <button class="chip">اکسسوری</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="ds-subsection">
+        <div class="ds-subsection-title">بج‌های کارت محصول</div>
+        <div class="preview-box">
+          <div class="ds-row" style="flex-wrap:wrap;">
+            <span class="badge badge-new">جدید</span>
+            <span class="badge badge-bestseller">پرفروش</span>
+            <span class="badge badge-discount">۱۸٪</span>
+            <span class="badge badge-success">موجود</span>
+            <span class="badge badge-error">ناموجود</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ds-subsection">
+        <div class="ds-subsection-title">Hero Badge</div>
+        <div class="preview-box">
+          <div class="hero-badge">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
+            فناوری پیشرفته ردیابی
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ════════════════════════════
+         SECTION: INPUTS
+    ════════════════════════════ -->
+    <section class="ds-section" id="inputs">
+      <h2 class="ds-section-title">ورودی‌ها</h2>
+
+      <div class="ds-subsection">
+        <div class="ds-subsection-title">Input Field — استاندارد</div>
+        <div class="preview-box">
+          <div style="max-width:400px; display:flex; flex-direction:column; gap:12px;">
+            <input class="input-field" type="text"  placeholder="نام و نام‌خانوادگی">
+            <input class="input-field" type="email" placeholder="ایمیل خود را وارد کنید">
+            <input class="input-field has-error" type="text" placeholder="فیلد با خطا">
+            <input class="input-field" type="text" placeholder="فیلد غیرفعال" disabled>
+          </div>
+        </div>
+      </div>
+
+      <div class="ds-subsection">
+        <div class="ds-subsection-title">Search Input — ناوبار (pill shape)</div>
+        <div class="preview-box">
+          <div style="max-width:400px; position:relative;">
+            <input class="input-search" type="text" placeholder="جستجوی محصولات...">
+            <svg style="position:absolute;right:14px;top:50%;transform:translateY(-50%);width:20px;height:20px;color:var(--text-tertiary);" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="ds-subsection">
+        <div class="ds-subsection-title">Newsletter Input + Button</div>
+        <div class="preview-box dark">
+          <div style="display:flex; gap:12px; max-width:480px;">
+            <input style="flex:1;height:50px;padding:0 20px;border:none;border-radius:9999px;font-family:inherit;font-size:14px;outline:none;" type="email" placeholder="ایمیل خود را وارد کنید">
+            <button class="btn btn-lg btn-solid-amber">عضویت</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ════════════════════════════
+         SECTION: FORMS (Checkbox & Toggle)
+    ════════════════════════════ -->
+    <section class="ds-section" id="forms">
+      <h2 class="ds-section-title">چک‌باکس و Toggle</h2>
+
+      <div class="ds-subsection">
+        <div class="ds-subsection-title">Checkbox — سفارشی</div>
+        <div class="preview-box">
+          <div style="display:flex; flex-direction:column; gap:16px; max-width:400px;">
+            <label class="checkbox-wrapper">
+              <input type="checkbox">
+              <span class="checkbox-custom"></span>
+              <span style="font-size:14px; color:var(--text-primary);">موافقم با شرایط و قوانین</span>
+            </label>
+            <label class="checkbox-wrapper">
+              <input type="checkbox" checked>
+              <span class="checkbox-custom"></span>
+              <span style="font-size:14px; color:var(--text-primary);">خبرنامه را دریافت کنم</span>
+            </label>
+            <label class="checkbox-wrapper">
+              <input type="checkbox" disabled>
+              <span class="checkbox-custom"></span>
+              <span style="font-size:14px; color:var(--text-tertiary);">گزینه غیرفعال</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="ds-subsection">
+        <div class="ds-subsection-title">Toggle Switch — سوئیچ</div>
+        <div class="preview-box">
+          <div style="display:flex; align-items:center; gap:16px; max-width:400px;">
+            <div class="toggle-switch"></div>
+            <span style="font-size:14px; color:var(--text-primary);">غیرفعال</span>
+            <div class="toggle-switch is-active"></div>
+            <span style="font-size:14px; color:var(--text-primary);">فعال</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ════════════════════════════
+         SECTION: PRODUCT DETAIL PAGE
+    ════════════════════════════ -->
+    <section class="ds-section" id="product-detail">
+      <h2 class="ds-section-title">صفحه محصول — Product Detail Page</h2>
+      <p class="ds-section-desc">طراحی کامل صفحه محصول با گالری، انتخابگر رنگ و سایز، قیمت، تب‌های اطلاعاتی و نظرات کاربران.</p>
+
+      <div class="ds-subsection">
+        <div class="ds-subsection-title">Breadcrumb + Header محصول</div>
+        <div class="preview-box muted">
+          <div style="max-width:1200px;">
+            <!-- Breadcrumb -->
+            <nav class="breadcrumb" style="display:flex; gap:8px; align-items:center; font-size:13px; color:var(--text-tertiary); margin-bottom:24px;">
+              <a href="#" style="color:var(--text-tertiary); text-decoration:none;">خانه</a>
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+              <a href="#" style="color:var(--text-tertiary); text-decoration:none;">ردیاب GPS</a>
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+              <span style="color:var(--text-primary);">ردیاب ۴G سری PRO</span>
+            </nav>
+
+            <!-- Product Header -->
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:48px; align-items:start;">
+              <!-- Gallery -->
+              <div>
+                <div class="product-gallery-main" style="background:white; border-radius:var(--radius-2xl); padding:24px; box-shadow:var(--shadow-lg); margin-bottom:16px; aspect-ratio:1; display:flex; align-items:center; justify-content:center;">
+                  <svg width="200" height="200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="0.5"><rect x="3" y="3" width="18" height="18" rx="4" fill="#F0EDE6"/><path d="M12 8v8m-4-4h8" stroke="#1A56DB" stroke-width="1.5"/></svg>
+                </div>
+                <div style="display:flex; gap:12px;">
+                  <button class="gallery-thumb is-active" style="flex:1; aspect-ratio:1; border-radius:var(--radius-lg); border:2px solid var(--navy); background:white; display:flex; align-items:center; justify-content:center;">
+                    <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="3"/></svg>
+                  </button>
+                  <button class="gallery-thumb" style="flex:1; aspect-ratio:1; border-radius:var(--radius-lg); border:2px solid transparent; background:white; display:flex; align-items:center; justify-content:center;">
+                    <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1"><circle cx="12" cy="12" r="9"/></svg>
+                  </button>
+                  <button class="gallery-thumb" style="flex:1; aspect-ratio:1; border-radius:var(--radius-lg); border:2px solid transparent; background:white; display:flex; align-items:center; justify-content:center;">
+                    <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1"><path d="M3 3h18v18H3z"/></svg>
+                  </button>
+                  <button class="gallery-thumb" style="flex:1; aspect-ratio:1; border-radius:var(--radius-lg); border:2px solid transparent; background:white; display:flex; align-items:center; justify-content:center; position:relative;">
+                    <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+                    <span style="position:absolute; bottom:4px; right:4px; font-size:10px; background:var(--navy); color:white; padding:2px 6px; border-radius:4px;">+۵</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Product Info -->
+              <div>
+                <div style="display:flex; gap:8px; margin-bottom:16px;">
+                  <span class="badge badge-success">موجود در انبار</span>
+                  <span class="badge badge-new">جدید</span>
+                </div>
+                <h1 style="font-size:28px; font-weight:700; color:var(--text-primary); margin-bottom:12px;">ردیاب ۴G سری PRO با نقشه آنلاین و باتری پشتیبان</h1>
+                
+                <div class="product-rating-large" style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
+                  <div style="display:flex; gap:4px;">
+                    <svg width="20" height="20" class="filled" viewBox="0 0 24 24"><path d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z"/></svg>
+                    <svg width="20" height="20" class="filled" viewBox="0 0 24 24"><path d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z"/></svg>
+                    <svg width="20" height="20" class="filled" viewBox="0 0 24 24"><path d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z"/></svg>
+                    <svg width="20" height="20" class="filled" viewBox="0 0 24 24"><path d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z"/></svg>
+                    <svg width="20" height="20" class="empty" viewBox="0 0 24 24"><path d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z"/></svg>
+                  </div>
+                  <span style="font-size:14px; color:var(--text-secondary);">۴.۲ از ۵ (۱۲۸ نظر)</span>
+                  <a href="#reviews" style="font-size:14px; color:var(--navy); text-decoration:none;">مشاهده نظرات</a>
+                </div>
+
+                <div class="product-price-block" style="background:linear-gradient(135deg, #F0EDE6 0%, #E5E1D8 100%); padding:24px; border-radius:var(--radius-xl); margin-bottom:24px;">
+                  <div style="display:flex; align-items:center; gap:16px; margin-bottom:12px;">
+                    <span style="font-size:32px; font-weight:700; color:var(--navy);">۲٬۸۰۰٬۰۰۰ تومان</span>
+                    <span style="font-size:18px; color:var(--text-tertiary); text-decoration:line-through;">۳٬۳۰۰٬۰۰۰</span>
+                    <span class="badge badge-discount" style="font-size:14px; padding:4px 12px;">۱۵٪ تخفیف</span>
+                  </div>
+                  <div style="font-size:13px; color:var(--success); display:flex; align-items:center; gap:6px;">
+                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z"/></svg>
+                    صرفه‌جویی: ۵۰۰٬۰۰۰ تومان
+                  </div>
+                </div>
+
+                <!-- Color Selector -->
+                <div style="margin-bottom:20px;">
+                  <div style="font-size:14px; font-weight:600; color:var(--text-primary); margin-bottom:10px;">رنگ: <span style="color:var(--text-tertiary); font-weight:400;">مشکی</span></div>
+                  <div style="display:flex; gap:10px;">
+                    <button class="color-swatch is-active" style="width:40px; height:40px; border-radius:50%; background:#1C1C2E; border:3px solid var(--navy);"></button>
+                    <button class="color-swatch" style="width:40px; height:40px; border-radius:50%; background:#4A4A6A; border:3px solid transparent;"></button>
+                    <button class="color-swatch" style="width:40px; height:40px; border-radius:50%; background:#0891B2; border:3px solid transparent;"></button>
+                  </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div style="display:flex; gap:12px; margin-bottom:24px;">
+                  <button class="btn btn-lg btn-solid-navy" style="flex:1;">افزودن به سبد خرید</button>
+                  <button class="btn btn-lg btn-outline" style="width:56px; display:flex; align-items:center; justify-content:center;">
+                    <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12.63 9 12.63s9-5.455 9-12.63z"/></svg>
+                  </button>
+                  <button class="btn btn-lg btn-outline" style="width:56px; display:flex; align-items:center; justify-content:center;">
+                    <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z"/></svg>
+                  </button>
+                </div>
+
+                <!-- Features List -->
+                <div style="border-top:1px solid var(--border-default); padding-top:20px;">
+                  <div style="font-size:14px; font-weight:600; color:var(--text-primary); margin-bottom:12px;">ویژگی‌های کلیدی</div>
+                  <ul style="list-style:none; display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:13px; color:var(--text-secondary);">
+                    <li style="display:flex; align-items:center; gap:8px;">
+                      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="check-icon"><path d="M4.5 12.75l6 6 9-13.5"/></svg>
+                      شبکه ۴G LTE
+                    </li>
+                    <li style="display:flex; align-items:center; gap:8px;">
+                      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="check-icon"><path d="M4.5 12.75l6 6 9-13.5"/></svg>
+                      نقشه آنلاین زنده
+                    </li>
+                    <li style="display:flex; align-items:center; gap:8px;">
+                      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="check-icon"><path d="M4.5 12.75l6 6 9-13.5"/></svg>
+                      باتری پشتیبان ۴۸ ساعت
+                    </li>
+                    <li style="display:flex; align-items:center; gap:8px;">
+                      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="check-icon"><path d="M4.5 12.75l6 6 9-13.5"/></svg>
+                      ضد آب IP67
+                    </li>
+                    <li style="display:flex; align-items:center; gap:8px;">
+                      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="check-icon"><path d="M4.5 12.75l6 6 9-13.5"/></svg>
+                      گارانتی ۱ ساله
+                    </li>
+                    <li style="display:flex; align-items:center; gap:8px;">
+                      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="check-icon"><path d="M4.5 12.75l6 6 9-13.5"/></svg>
+                      نصب رایگان
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ds-subsection">
+        <div class="ds-subsection-title">تب‌های اطلاعاتی</div>
+        <div class="preview-box muted">
+          <div style="max-width:1200px;">
+            <div class="product-tabs" style="border-bottom:2px solid var(--border-default); margin-bottom:24px;">
+              <button class="product-tab is-active" style="padding:12px 24px; background:none; border:none; font-size:14px; font-weight:600; color:var(--navy); border-bottom:2px solid var(--navy); margin-bottom:-2px;">بررسی اجمالی</button>
+              <button class="product-tab" style="padding:12px 24px; background:none; border:none; font-size:14px; font-weight:500; color:var(--text-secondary);">مشخصات فنی</button>
+              <button class="product-tab" style="padding:12px 24px; background:none; border:none; font-size:14px; font-weight:500; color:var(--text-secondary);">نظرات کاربران (۱۲۸)</button>
+              <button class="product-tab" style="padding:12px 24px; background:none; border:none; font-size:14px; font-weight:500; color:var(--text-secondary);">پشتیبانی</button>
+            </div>
+            
+            <div style="background:white; padding:32px; border-radius:var(--radius-xl); box-shadow:var(--shadow-md);">
+              <h3 style="font-size:18px; font-weight:700; color:var(--text-primary); margin-bottom:16px;">بررسی اجمالی ردیاب ۴G سری PRO</h3>
+              <p style="font-size:14px; line-height:2; color:var(--text-secondary); margin-bottom:20px;">
+                ردیاب ۴G سری PRO پیشرفته‌ترین دستگاه ردیابی خودرو با قابلیت اتصال به شبکه ۴G LTE و ارائه موقعیت‌یابی دقیق و لحظه‌ای است. 
+                این دستگاه با بهره‌گیری از جدیدترین تکنولوژی‌های روز دنیا، امنیت خودروی شما را به طور کامل تضمین می‌کند.
+              </p>
+              <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:20px;">
+                <div style="text-align:center; padding:20px; background:var(--bg-secondary); border-radius:var(--radius-lg);">
+                  <div style="font-size:28px; font-weight:700; color:var(--navy); margin-bottom:4px;">۲ متر</div>
+                  <div style="font-size:12px; color:var(--text-tertiary);">دقت موقعیت‌یابی</div>
+                </div>
+                <div style="text-align:center; padding:20px; background:var(--bg-secondary); border-radius:var(--radius-lg);">
+                  <div style="font-size:28px; font-weight:700; color:var(--teal); margin-bottom:4px;">۴۸ ساعت</div>
+                  <div style="font-size:12px; color:var(--text-tertiary);">باتری پشتیبان</div>
+                </div>
+                <div style="text-align:center; padding:20px; background:var(--bg-secondary); border-radius:var(--radius-lg);">
+                  <div style="font-size:28px; font-weight:700; color:var(--amber); margin-bottom:4px;">IP67</div>
+                  <div style="font-size:12px; color:var(--text-tertiary);">مقاومت در برابر آب</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ds-subsection">
+        <div class="ds-subsection-title">بخش نظرات کاربران</div>
+        <div class="preview-box">
+          <div style="max-width:1200px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+              <h3 style="font-size:20px; font-weight:700; color:var(--text-primary);">نظرات کاربران</h3>
+              <button class="btn btn-md btn-outline">ثبت نظر جدید</button>
+            </div>
+            
+            <div style="display:grid; gap:20px;">
+              <!-- Review Item -->
+              <div style="background:white; padding:24px; border-radius:var(--radius-xl); box-shadow:var(--shadow-sm);">
+                <div style="display:flex; justify-content:space-between; margin-bottom:16px;">
+                  <div style="display:flex; align-items:center; gap:12px;">
+                    <div style="width:48px; height:48px; border-radius:50%; background:var(--gradient-navy); display:flex; align-items:center; justify-content:center; color:white; font-weight:700;">م</div>
+                    <div>
+                      <div style="font-weight:600; color:var(--text-primary);">محمد رضایی</div>
+                      <div style="font-size:12px; color:var(--text-tertiary);">تهران، شهرک غرب — ۱۵ آبان ۱۴۰۳</div>
+                    </div>
+                  </div>
+                  <div style="display:flex; gap:4px;">
+                    <svg width="18" height="18" class="filled" viewBox="0 0 24 24"><path d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z"/></svg>
+                    <svg width="18" height="18" class="filled" viewBox="0 0 24 24"><path d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z"/></svg>
+                    <svg width="18" height="18" class="filled" viewBox="0 0 24 24"><path d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z"/></svg>
+                    <svg width="18" height="18" class="filled" viewBox="0 0 24 24"><path d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z"/></svg>
+                    <svg width="18" height="18" class="empty" viewBox="0 0 24 24"><path d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z"/></svg>
+                  </div>
+                </div>
+                <p style="font-size:14px; line-height:1.8; color:var(--text-secondary);">
+                  ردیاب GPS آتی فرزام خیلی خوب کار می‌کنه. چند بار ماشینمو دزدیدن و تونستم با کمک این دستگاه پیداش کنم. 
+                  نصبشم آسون بود و تیم پشتیبانی خیلی خوب راهنمایی کردن. توصیه می‌کنم حتماً بخرید.
+                </p>
+                <div style="margin-top:16px; display:flex; gap:12px;">
+                  <button style="background:none; border:none; font-size:12px; color:var(--text-tertiary); display:flex; align-items:center; gap:6px; cursor:pointer;">
+                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M6.633 10.5c.806 0 1.533-.446 2.031-1.08a9.041 9.041 0 012.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 00.322-1.672V3a.75.75 0 01.75-.75A2.25 2.25 0 0116.5 4.5c0 1.152-.26 2.247-.723 3.218-.266.558.107 1.282.725 1.282h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 01-2.649 7.521c-.388.482-.987.729-1.605.729H13.48c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 00-1.423-.23H5.904M14.25 9h2.25M5.904 18.75c.083.205.173.405.27.602.197.4-.078.898-.523.898h-.908c-.889 0-1.713-.518-1.972-1.368a12 12 0 01-.521-3.507c0-1.553.295-3.036.831-4.396C3.387 10.203 4.167 9.75 5 9.75h1.053c.472 0 .745.556.5.96a8.958 8.958 0 00-1.302 4.665c0 1.194.232 2.333.654 3.375z"/></svg>
+                    مفید بود (۱۲)
+                  </button>
+                  <button style="background:none; border:none; font-size:12px; color:var(--text-tertiary); display:flex; align-items:center; gap:6px; cursor:pointer;">
+                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M7.5 12h9m-9 3.75h6.375a2.25 2.25 0 002.188-1.698l.9-3.6a2.25 2.25 0 00-2.188-2.802H7.5m9 0V6.75a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 004.5 6.75v10.5a2.25 2.25 0 002.25 2.25h.375"/></svg>
+                    گزارش
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ds-subsection">
+        <div class="ds-subsection-title">محصولات مشابه</div>
+        <div class="preview-box muted">
+          <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:24px; max-width:1200px;">
+            <div class="product-card">
+              <div class="card-image">
+                <span class="card-badge badge-discount" style="left:12px;">۱۰٪</span>
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1"><path d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12"/></svg>
+              </div>
+              <div class="card-content">
+                <div class="card-category">ردیاب GPS</div>
+                <div class="card-title">ردیاب ۴G سری Lite اقتصادی</div>
+                <div class="card-price">
+                  <span class="card-price-current">۱٬۹۵۰٬۰۰۰ ت</span>
+                  <span class="card-price-old">۲٬۲۰۰٬۰۰۰</span>
+                </div>
+              </div>
+              <div class="card-action">
+                <button class="btn btn-md btn-outline">مشاهده</button>
+              </div>
+            </div>
+            <div class="product-card">
+              <div class="card-image">
+                <span class="card-badge badge-bestseller" style="right:12px;">پرفروش</span>
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1"><path d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12"/></svg>
+              </div>
+              <div class="card-content">
+                <div class="card-category">ردیاب GPS</div>
+                <div class="card-title">ردیاب ۴G سری Ultra حرفه‌ای</div>
+                <div class="card-price">
+                  <span class="card-price-current">۳٬۶۰۰٬۰۰۰ ت</span>
+                </div>
+              </div>
+              <div class="card-action">
+                <button class="btn btn-md btn-outline">مشاهده</button>
+              </div>
+            </div>
+            <div class="product-card">
+              <div class="card-image">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1"><path d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12"/></svg>
+              </div>
+              <div class="card-content">
+                <div class="card-category">ردیاب GPS</div>
+                <div class="card-title">ردیاب ۲G کلاسیک</div>
+                <div class="card-price">
+                  <span class="card-price-current">۱٬۲۰۰٬۰۰۰ ت</span>
+                </div>
+              </div>
+              <div class="card-action">
+                <button class="btn btn-md btn-outline">مشاهده</button>
+              </div>
+            </div>
+            <div class="product-card">
+              <div class="card-image">
+                <span class="card-badge badge-new" style="right:12px;">جدید</span>
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1"><path d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12"/></svg>
+              </div>
+              <div class="card-content">
+                <div class="card-category">ردیاب GPS</div>
+                <div class="card-title">ردیاب 5G نسل آینده</div>
+                <div class="card-price">
+                  <span class="card-price-current">۴٬۸۰۰٬۰۰۰ ت</span>
+                </div>
+              </div>
+              <div class="card-action">
+                <button class="btn btn-md btn-outline">مشاهده</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ════════════════════════════
+         SECTION: MODALS & TOASTS
+    ════════════════════════════ -->
+    <section class="ds-section" id="modals">
+      <h2 class="ds-section-title">مودال و Toast</h2>
+
+      <div class="ds-subsection">
+        <div class="ds-subsection-title">Modal — پنجره مودال</div>
+        <div class="preview-box" style="position:relative; overflow:visible;">
+          <div style="position:relative; background:rgba(28,28,46,.5); border-radius:var(--radius-xl); padding:40px; display:flex; align-items:center; justify-content:center;">
+            <div style="background:white; border-radius:var(--radius-xl); padding:32px; max-width:420px; width:100%; box-shadow:var(--shadow-2xl);">
+              <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+                <div style="width:40px; height:40px; background:rgba(26,86,219,.1); border-radius:50%; display:flex; align-items:center; justify-content:center;">
+                  <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg>
+                </div>
+                <div>
+                  <div style="font-size:16px; font-weight:700; color:var(--text-primary);">امتیاز دهید</div>
+                  <div style="font-size:12px; color:var(--text-tertiary);">نظر شما برای ما مهم است</div>
+                </div>
+              </div>
+              <p style="font-size:14px; color:var(--text-secondary); margin-bottom:24px; line-height:1.7;">از تجربه خرید خود راضی بودید؟ لطفاً امتیاز خود را ثبت کنید.</p>
+              <div style="display:flex; gap:8px; justify-content:flex-end;">
+                <button class="btn btn-md btn-ghost">انصراف</button>
+                <button class="btn btn-md btn-solid-navy">ثبت امتیاز</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ds-subsection">
+        <div class="ds-subsection-title">Toast — اعلان</div>
+        <div class="preview-box">
+          <div style="display:flex; flex-direction:column; gap:12px; max-width:360px;">
+            <div style="display:flex; align-items:center; gap:12px; padding:14px 16px; background:white; border:1px solid var(--border-default); border-radius:var(--radius-lg); box-shadow:var(--shadow-lg);">
+              <div style="width:24px; height:24px; background:rgba(5,150,105,.12); border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4.5 12.75l6 6 9-13.5"/></svg>
+              </div>
+              <div style="flex:1;">
+                <div style="font-size:13px; font-weight:600; color:var(--text-primary);">موفقیت‌آمیز</div>
+                <div style="font-size:12px; color:var(--text-secondary);">محصول به سبد اضافه شد</div>
+              </div>
+              <button style="background:none; border:none; color:var(--text-tertiary); cursor:pointer;"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M6 18L18 6M6 6l12 12"/></svg></button>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px; padding:14px 16px; background:white; border:1px solid var(--border-default); border-radius:var(--radius-lg); box-shadow:var(--shadow-lg);">
+              <div style="width:24px; height:24px; background:rgba(220,38,38,.1); border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/></svg>
+              </div>
+              <div style="flex:1;">
+                <div style="font-size:13px; font-weight:600; color:var(--error);">خطا</div>
+                <div style="font-size:12px; color:var(--text-secondary);">ارتباط با سرور قطع شد</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ════════════════════════════
+         SECTION: CARDS
+    ════════════════════════════ -->
+    <section class="ds-section" id="cards">
+      <h2 class="ds-section-title">کارت‌ها</h2>
+
+      <div class="ds-subsection">
+        <div class="ds-subsection-title">Product Card — کارت محصول</div>
+        <div class="preview-box muted">
+          <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:24px; max-width:900px;">
+            <!-- Card 1 -->
+            <div class="product-card">
+              <div class="card-image">
+                <span class="card-badge badge-bestseller" style="right:12px;">پرفروش</span>
+                <span class="card-badge badge-discount" style="left:12px;">۱۵٪</span>
+                <button class="card-wishlist">
+                  <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12.63 9 12.63s9-5.455 9-12.63z"/></svg>
+                </button>
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1"><path d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12"/></svg>
+              </div>
+              <div class="card-content">
+                <div class="card-category">ردیاب GPS</div>
+                <div class="card-title">ردیاب ۴G سری PRO با نقشه آنلاین</div>
+                <div class="card-specs">
+                  <div class="card-spec">
+                    <svg fill="currentColor" viewBox="0 0 24 24"><path d="M1.5 8.322a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zM3.75 12a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5A.75.75 0 013.75 12z"/></svg>
+                    شبکه ۴G
+                  </div>
+                  <div class="card-spec">
+                    <svg fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/></svg>
+                    گارانتی ۱ سال
+                  </div>
+                </div>
+                <div class="card-rating">
+                  <div class="card-stars">
+                    <svg class="filled" viewBox="0 0 24 24"><path d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z"/></svg>
+                    <svg class="filled" viewBox="0 0 24 24"><path d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z"/></svg>
+                    <svg class="filled" viewBox="0 0 24 24"><path d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z"/></svg>
+                    <svg class="filled" viewBox="0 0 24 24"><path d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z"/></svg>
+                    <svg class="empty" viewBox="0 0 24 24"><path d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z"/></svg>
+                  </div>
+                  <span class="card-review-count">(۱۲۸ نظر)</span>
+                </div>
+                <div class="card-price">
+                  <span class="card-price-current">۲٬۸۰۰٬۰۰۰ ت</span>
+                  <span class="card-price-old">۳٬۳۰۰٬۰۰۰</span>
+                  <span class="card-price-discount">۱۵٪ تخفیف</span>
+                </div>
+              </div>
+              <div class="card-action">
+                <button class="btn btn-md btn-solid-navy">افزودن به سبد</button>
+                <button class="btn btn-md btn-ghost">مشاهده جزئیات</button>
+              </div>
+            </div>
+
+            <!-- Card 2 (new badge) -->
+            <div class="product-card">
+              <div class="card-image">
+                <span class="card-badge badge-new" style="right:12px;">جدید</span>
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1"><path d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>
+              </div>
+              <div class="card-content">
+                <div class="card-category">دزدگیر</div>
+                <div class="card-title">سیستم دزدگیر هوشمند AFI-ALARM PRO</div>
+                <div class="card-price">
+                  <span class="card-price-current">۴٬۵۰۰٬۰۰۰ ت</span>
+                </div>
+              </div>
+              <div class="card-action">
+                <button class="btn btn-md btn-solid-teal">افزودن به سبد</button>
+              </div>
+            </div>
+
+            <!-- Card 3 (wishlist active) -->
+            <div class="product-card">
+              <div class="card-image">
+                <button class="card-wishlist is-active">
+                  <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12.63 9 12.63s9-5.455 9-12.63z"/></svg>
+                </button>
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1"><path d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
+              </div>
+              <div class="card-content">
+                <div class="card-category">قفل هوشمند</div>
+                <div class="card-title">قفل فرمان بلوتوث نسل سوم</div>
+                <div class="card-price">
+                  <span class="card-price-current">۱٬۹۵۰٬۰۰۰ ت</span>
+                </div>
+              </div>
+              <div class="card-action">
+                <button class="btn btn-md btn-solid-amber">افزودن به سبد</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ds-subsection">
+        <div class="ds-subsection-title">Category Card — دسته‌بندی</div>
+        <div class="preview-box">
+          <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:16px; max-width:600px;">
+            <a class="category-card" href="#">
+              <div class="category-icon">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/></svg>
+              </div>
+              <div class="category-name">ردیاب GPS</div>
+              <div class="category-count">۴۵ محصول</div>
+            </a>
+            <a class="category-card" href="#">
+              <div class="category-icon">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>
+              </div>
+              <div class="category-name">دزدگیر</div>
+              <div class="category-count">۳۸ محصول</div>
+            </a>
+            <a class="category-card" href="#">
+              <div class="category-icon">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
+              </div>
+              <div class="category-name">قفل هوشمند</div>
+              <div class="category-count">۲۲ محصول</div>
+            </a>
+            <a class="category-card" href="#">
+              <div class="category-icon">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M6 13.5V3.75m0 9.75a1.5 1.5 0 010 3m0-3a1.5 1.5 0 000 3m0 3.75V16.5m12-3V3.75m0 9.75a1.5 1.5 0 010 3m0-3a1.5 1.5 0 000 3m0 3.75V16.5m-6-9V3.75m0 3.75a1.5 1.5 0 010 3m0-3a1.5 1.5 0 000 3m0 9.75V10.5"/></svg>
+              </div>
+              <div class="category-name">اکسسوری</div>
+              <div class="category-count">۶۷ محصول</div>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="ds-subsection">
+        <div class="ds-subsection-title">Feature Card</div>
+        <div class="preview-box muted">
+          <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:24px;">
+            <div class="feature-card">
+              <div class="feature-icon">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25"/></svg>
+              </div>
+              <h3 class="feature-title">نصب رایگان</h3>
+              <p class="feature-description">نصب توسط تکنسین‌های مجرب در محل شما، بدون هیچ هزینه‌ای.</p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>
+              </div>
+              <h3 class="feature-title">گارانتی یک‌ساله</h3>
+              <p class="feature-description">تمام محصولات با گارانتی معتبر یک‌ساله و خدمات پس از فروش.</p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"/></svg>
+              </div>
+              <h3 class="feature-title">پشتیبانی ۲۴/۷</h3>
+              <p class="feature-description">تیم متخصص پشتیبانی آماده پاسخگویی در هر ساعت از شبانه‌روز.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ds-subsection">
+        <div class="ds-subsection-title">Testimonial Card</div>
+        <div class="preview-box">
+          <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:24px;">
+            <div class="testimonial-card">
+              <svg class="testimonial-quote" viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
+              <p class="testimonial-text">ردیاب GPS آتی فرزام خیلی خوب کار می‌کنه. چند بار ماشینمو پیدا کردم. نصبشم آسون بود.</p>
+              <div class="testimonial-author">
+                <div class="testimonial-avatar">م</div>
+                <div>
+                  <div class="testimonial-name">محمد رضایی</div>
+                  <div class="testimonial-location">تهران، شهرک غرب</div>
+                </div>
+              </div>
+            </div>
+            <div class="testimonial-card">
+              <svg class="testimonial-quote" viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
+              <p class="testimonial-text">دزدگیر AFI-ALARM PRO بهترین سرمایه‌گذاری بود که برای ماشینم کردم. توصیه می‌کنم.</p>
+              <div class="testimonial-author">
+                <div class="testimonial-avatar">ا</div>
+                <div>
+                  <div class="testimonial-name">امیراحسان کریمی</div>
+                  <div class="testimonial-location">اصفهان، چهارباغ</div>
+                </div>
+              </div>
+            </div>
+            <div class="testimonial-card">
+              <svg class="testimonial-quote" viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
+              <p class="testimonial-text">قفل هوشمندشون کیفیتش عالیه. بلوتوثش سریع اتصال برقرار می‌کنه. گارانتی یک‌ساله خیالمو راحت کرد.</p>
+              <div class="testimonial-author">
+                <div class="testimonial-avatar">س</div>
+                <div>
+                  <div class="testimonial-name">سارا محمدی</div>
+                  <div class="testimonial-location">شیراز، معالی‌آباد</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ════════════════════════════
+         SECTION: NAVIGATION
+    ════════════════════════════ -->
+    <section class="ds-section" id="navigation">
+      <h2 class="ds-section-title">ناوبری</h2>
+
+      <div class="ds-subsection">
+        <div class="ds-subsection-title">Navbar — نوار ناوبری (72px، sticky)</div>
+        <div class="preview-box" style="padding:0; overflow:hidden; border-radius:var(--radius-xl);">
+          <div style="height:72px; background:var(--bg-primary); border-bottom:1px solid var(--border-default); display:flex; align-items:center; padding:0 24px; gap:24px; justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <svg viewBox="0 0 40 40" fill="none" style="width:40px;height:40px;flex-shrink:0;"><rect width="40" height="40" rx="10" fill="#1A56DB"/><path d="M20 8L28 14V26L20 32L12 26V14L20 8Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="20" cy="20" r="4" fill="white"/></svg>
+              <div style="font-size:18px;font-weight:700;color:var(--navy-deeper);">آتی فرزام ایرانیان <span style="display:block;font-size:11px;font-weight:400;color:var(--text-tertiary);">GPS & Security Solutions</span></div>
+            </div>
+            <nav style="display:flex;gap:32px;list-style:none;">
+              <a class="nav-link is-active" href="#">دسته‌بندی‌ها</a>
+              <a class="nav-link" href="#">محصولات</a>
+              <a class="nav-link" href="#">گارانتی</a>
+            </nav>
+            <div style="display:flex;gap:12px;align-items:center;">
+              <button class="navbar-action-btn"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12.63 9 12.63s9-5.455 9-12.63z"/></svg></button>
+              <button class="navbar-action-btn" style="position:relative;"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z"/></svg><span class="badge-count">۳</span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ds-subsection">
+        <div class="ds-subsection-title">Tab Bar — نوار پایینی موبایل (64px، fixed)</div>
+        <div class="preview-box" style="padding:0; overflow:hidden; border-radius:var(--radius-xl);">
+          <div style="height:64px; background:var(--bg-primary); border-top:1px solid var(--border-default); display:flex; align-items:stretch;">
+            <a class="tab-bar-item-demo is-active" href="#" style="flex:1;">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/></svg>
+              <span>خانه</span>
+            </a>
+            <a class="tab-bar-item-demo" href="#" style="flex:1;">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6z"/><path d="M13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6z"/></svg>
+              <span>دسته‌بندی</span>
+            </a>
+            <a class="tab-bar-item-demo" href="#" style="flex:1;">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
+              <span>جستجو</span>
+            </a>
+            <a class="tab-bar-item-demo" href="#" style="flex:1;">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12.63 9 12.63s9-5.455 9-12.63z"/></svg>
+              <span>علاقه‌مندی</span>
+            </a>
+            <a class="tab-bar-item-demo" href="#" style="flex:1;">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z"/></svg>
+              <span>سبد خرید</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="ds-subsection">
+        <div class="ds-subsection-title">Trust Bar — نوار اعتماد</div>
+        <div class="preview-box muted">
+          <div style="display:flex; justify-content:space-around; flex-wrap:wrap; gap:24px;">
+            <div class="trust-item">
+              <div class="trust-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12"/></svg></div>
+              <span class="trust-text">ارسال سریع به سراسر کشور</span>
+            </div>
+            <div class="trust-item">
+              <div class="trust-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg></div>
+              <span class="trust-text">گارانتی ۱۲ ماهه اصالت کالا</span>
+            </div>
+            <div class="trust-item">
+              <div class="trust-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3"/></svg></div>
+              <span class="trust-text">بازگشت ۷ روزه بدون سوال</span>
+            </div>
+            <div class="trust-item">
+              <div class="trust-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z"/></svg></div>
+              <span class="trust-text">پرداخت امن درگاه بانکی</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ════════════════════════════
+         SECTION: SECTIONS
+    ════════════════════════════ -->
+    <section class="ds-section" id="sections">
+      <h2 class="ds-section-title">سکشن‌ها</h2>
+
+      <div class="ds-subsection">
+        <div class="ds-subsection-title">Section Header — سربرگ سکشن</div>
+        <div class="preview-box">
+          <div class="section-header">
+            <h2 class="section-title">محصولات پرفروش</h2>
+            <a class="section-link" href="#">
+              مشاهده همه
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="ds-subsection">
+        <div class="ds-subsection-title">Hero Stats — آمار قهرمان</div>
+        <div class="preview-box">
+          <div style="display:flex; gap:48px; padding-top:24px; border-top:1px solid var(--border-default);">
+            <div class="stat-block"><div class="stat-value">+۵۰۰۰</div><div class="stat-label">مشتری راضی</div></div>
+            <div class="stat-block"><div class="stat-value">+۱۵۰</div><div class="stat-label">محصول متنوع</div></div>
+            <div class="stat-block"><div class="stat-value">+۱۰</div><div class="stat-label">سال تجربه</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ds-subsection">
+        <div class="ds-subsection-title">Footer Social Links — لینک‌های شبکه اجتماعی</div>
+        <div class="preview-box dark">
+          <div style="display:flex; gap:12px;">
+            <a href="#" class="footer-social-link">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37zM17.5 6.5h.01"/></svg>
+            </a>
+            <a href="#" class="footer-social-link">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.556 4.03-8 9-8s9 3.444 9 8z"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ════════════════════════════
+         SECTION: LAYOUT
+    ════════════════════════════ -->
+    <section class="ds-section" id="layout">
+      <h2 class="ds-section-title">گرید و کانتینر</h2>
+      <p class="ds-section-desc">سیستم کانتینر با max-width ثابت و padding متغیر بر اساس breakpoint.</p>
+
+      <div style="background:white; border:1px solid var(--border-default); border-radius:var(--radius-lg); overflow:hidden;">
+        <table style="width:100%; border-collapse:collapse; font-size:13px;">
+          <thead>
+            <tr style="background:var(--bg-secondary);">
+              <th style="padding:12px 16px; text-align:right; font-weight:600; border-bottom:1px solid var(--border-default);">کلاس / متغیر</th>
+              <th style="padding:12px 16px; text-align:right; font-weight:600; border-bottom:1px solid var(--border-default);">مقدار</th>
+              <th style="padding:12px 16px; text-align:right; font-weight:600; border-bottom:1px solid var(--border-default);">کاربرد</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border-default);">
+              <td style="padding:10px 16px;"><code>.container</code></td>
+              <td style="padding:10px 16px; font-family:monospace;">max-width: 1280px</td>
+              <td style="padding:10px 16px; color:var(--text-secondary);">تمام سکشن‌ها</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border-default);">
+              <td style="padding:10px 16px;"><code>padding desktop</code></td>
+              <td style="padding:10px 16px; font-family:monospace;">0 48px</td>
+              <td style="padding:10px 16px; color:var(--text-secondary);">&gt; 1024px</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border-default);">
+              <td style="padding:10px 16px;"><code>padding tablet</code></td>
+              <td style="padding:10px 16px; font-family:monospace;">0 24px</td>
+              <td style="padding:10px 16px; color:var(--text-secondary);">768–1024px</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border-default);">
+              <td style="padding:10px 16px;"><code>padding mobile</code></td>
+              <td style="padding:10px 16px; font-family:monospace;">0 16px</td>
+              <td style="padding:10px 16px; color:var(--text-secondary);">&lt; 768px</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border-default);">
+              <td style="padding:10px 16px;"><code>section padding</code></td>
+              <td style="padding:10px 16px; font-family:monospace;">96px 0</td>
+              <td style="padding:10px 16px; color:var(--text-secondary);">Products، Features، Testimonials</td>
+            </tr>
+            <tr>
+              <td style="padding:10px 16px;"><code>--navbar-height</code></td>
+              <td style="padding:10px 16px; font-family:monospace;">72px</td>
+              <td style="padding:10px 16px; color:var(--text-secondary);">sticky top navbar</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="ds-subsection" style="margin-top:32px;">
+        <div class="ds-subsection-title">گریدهای اصلی</div>
+        <div style="background:white; border:1px solid var(--border-default); border-radius:var(--radius-lg); overflow:hidden;">
+          <table style="width:100%; border-collapse:collapse; font-size:13px;">
+            <thead>
+              <tr style="background:var(--bg-secondary);">
+                <th style="padding:12px 16px; text-align:right; font-weight:600; border-bottom:1px solid var(--border-default);">کامپوننت</th>
+                <th style="padding:12px 16px; text-align:right; font-weight:600; border-bottom:1px solid var(--border-default);">Desktop</th>
+                <th style="padding:12px 16px; text-align:right; font-weight:600; border-bottom:1px solid var(--border-default);">Tablet</th>
+                <th style="padding:12px 16px; text-align:right; font-weight:600; border-bottom:1px solid var(--border-default);">Mobile</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid var(--border-default);"><td style="padding:10px 16px;">Hero</td><td style="padding:10px 16px; font-family:monospace;">2 cols</td><td style="padding:10px 16px; font-family:monospace;">1 col</td><td style="padding:10px 16px; font-family:monospace;">1 col</td></tr>
+              <tr style="border-bottom:1px solid var(--border-default);"><td style="padding:10px 16px;">Category Grid</td><td style="padding:10px 16px; font-family:monospace;">6 cols</td><td style="padding:10px 16px; font-family:monospace;">3 cols</td><td style="padding:10px 16px; font-family:monospace;">2 cols</td></tr>
+              <tr style="border-bottom:1px solid var(--border-default);"><td style="padding:10px 16px;">Products Grid</td><td style="padding:10px 16px; font-family:monospace;">4 cols</td><td style="padding:10px 16px; font-family:monospace;">2 cols</td><td style="padding:10px 16px; font-family:monospace;">1 col</td></tr>
+              <tr style="border-bottom:1px solid var(--border-default);"><td style="padding:10px 16px;">Features Grid</td><td style="padding:10px 16px; font-family:monospace;">3 cols</td><td style="padding:10px 16px; font-family:monospace;">2 cols</td><td style="padding:10px 16px; font-family:monospace;">1 col</td></tr>
+              <tr style="border-bottom:1px solid var(--border-default);"><td style="padding:10px 16px;">Testimonials</td><td style="padding:10px 16px; font-family:monospace;">3 cols</td><td style="padding:10px 16px; font-family:monospace;">2 cols</td><td style="padding:10px 16px; font-family:monospace;">1 col</td></tr>
+              <tr><td style="padding:10px 16px;">Footer Grid</td><td style="padding:10px 16px; font-family:monospace;">2fr+1fr+1fr+1fr</td><td style="padding:10px 16px; font-family:monospace;">2 cols</td><td style="padding:10px 16px; font-family:monospace;">1 col</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ════════════════════════════
+         SECTION: RESPONSIVE
+    ════════════════════════════ -->
+    <section class="ds-section" id="responsive">
+      <h2 class="ds-section-title">بریک‌پوینت‌ها</h2>
+      <p class="ds-section-desc">دو breakpoint اصلی با رویکرد desktop-first.</p>
+
+      <div style="display:flex; gap:16px; flex-wrap:wrap;">
+        <div class="token-card" style="flex:1; min-width:200px;">
+          <div class="token-label">Tablet</div>
+          <div style="font-size:24px; font-weight:700; color:var(--navy); margin:8px 0;">≤ 1024px</div>
+          <div class="token-value">navbar nav hidden · search hidden<br>tab-bar نمایش داده می‌شود<br>گریدها ۲-۳ ستون</div>
+        </div>
+        <div class="token-card" style="flex:1; min-width:200px;">
+          <div class="token-label">Mobile</div>
+          <div style="font-size:24px; font-weight:700; color:var(--teal); margin:8px 0;">≤ 768px</div>
+          <div class="token-value">hero title: 28px<br>hero stats: column<br>newsletter form: column<br>footer: 1 col</div>
+        </div>
+        <div class="token-card" style="flex:1; min-width:200px;">
+          <div class="token-label">Tab Bar Safe Area</div>
+          <div style="font-size:24px; font-weight:700; color:var(--amber); margin:8px 0;">env()</div>
+          <div class="token-value">height: calc(64px + env(safe-area-inset-bottom))<br>برای notch و home indicator</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  // Active sidebar link on scroll
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.ds-nav-link');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(l => l.classList.remove('active'));
+        const active = document.querySelector(`.ds-nav-link[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>

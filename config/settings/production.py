@@ -117,13 +117,18 @@ DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="noreply@example.com")
 AZ_IRANIAN_BANK_GATEWAYS = {
     "BANKS": {
         "ZARINPAL": {
-            "MERCHANT_CODE": env("ZARINPAL_MERCHANT_CODE", default="SANDBOX"),
+            "MERCHANT_CODE": env("ZARINPAL_MERCHANT_CODE", default=""),
             "SANDBOX": False,   # always OFF in production
         },
     },
     "IS_SAMPLE_FORM_ENABLE": False,
     "DEFAULT": "ZARINPAL",
 }
+
+# Production MUST have a real callback URL
+PAYMENT_CALLBACK_BASE_URL = env("PAYMENT_CALLBACK_BASE_URL")
+if not PAYMENT_CALLBACK_BASE_URL:
+    raise ValueError("PAYMENT_CALLBACK_BASE_URL must be set in production environment")
 
 # ---------------------------------------------------------------------------
 # CORS

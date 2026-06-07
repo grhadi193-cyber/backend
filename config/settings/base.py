@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     # third-party
     "ninja",
     "corsheaders",
+    "ratelimit",
     # project apps
     "core",
     "sms",
@@ -55,6 +56,9 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    # Custom middleware
+    "core.middleware.RateLimitMiddleware",
+    "core.middleware.PaymentCallbackSecurityMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -157,7 +161,24 @@ AZ_IRANIAN_BANK_GATEWAYS = {
     "IS_SAMPLE_FORM_ENABLE": False,
     "DEFAULT": "ZARINPAL",
 }
+# PAYMENT_CALLBACK_URL باید در environment تنظیم شود (مثلاً https://yourdomain.com/api/payment/callback)
 PAYMENT_CALLBACK_BASE_URL = env("PAYMENT_CALLBACK_BASE_URL", default="http://127.0.0.1:8000")
+
+# ---------------------------------------------------------------------------
+# Rate Limiting
+# ---------------------------------------------------------------------------
+# تعداد درخواست‌های مجاز در هر دقیقه برای APIها
+API_RATE_LIMIT = env("API_RATE_LIMIT", default="100/m")
+# محدودیت ارسال OTP (تعداد در ساعت)
+OTP_RATE_LIMIT_PER_HOUR = env.int("OTP_RATE_LIMIT_PER_HOUR", default=5)
+
+# ---------------------------------------------------------------------------
+# Redis / Celery (optional for production)
+# ---------------------------------------------------------------------------
+REDIS_URL = env("REDIS_URL", default="")
+if REDIS_URL:
+    CELERY_BROKER_URL = REDIS_URL
+    CELERY_RESULT_BACKEND = REDIS_URL
 
 # ---------------------------------------------------------------------------
 # CORS
